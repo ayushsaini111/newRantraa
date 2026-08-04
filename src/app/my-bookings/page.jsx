@@ -25,7 +25,7 @@ export default function MyBookingsPage() {
         return;
       }
 
-      const response = await fetch(`http://localhost:3001/api/bookings?userId=${userId}`);
+      const response = await fetch(`https://astro-nine-beige.vercel.app/api/bookings?userId=${userId}`);
       const data = await response.json();
 
       if (data.success) {
