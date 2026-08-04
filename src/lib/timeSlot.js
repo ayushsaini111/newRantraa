@@ -32,7 +32,7 @@ export const TIME_SLOTS = [
 ];
 
 /**
- * Convert time slot value (e.g., "8-12") to Prisma enum (e.g., "SLOT_8_12")
+ * Convert time slot value (e.g., "8-12") to Prisma enum uiuiuhuh (e.g., "SLOT_8_12")
  */
 export const getTimeSlotEnum = (value) => {
   const slot = TIME_SLOTS.find(s => s.value === value);
