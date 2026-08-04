@@ -12,7 +12,7 @@ export default async function PlansPage() {
 
   try {
     // ✅ Fetch from backend API
-    const res = await fetch("/backend/api/plans/list", {
+    const res = await fetch("/https://astro-nine-beige.vercel.app/api/plans/list", {
       headers: {
         'x-user-id': userId || '',
       },

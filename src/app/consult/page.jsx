@@ -11,7 +11,7 @@ export const metadata = {
 
 async function fetchPandits() {
   try {
-    const res = await fetch("/backend/api/pandits", {
+    const res = await fetch("https://astro-nine-beige.vercel.app/api/pandits", {
       cache: "no-store",
     });
     if (!res.ok) return [];
