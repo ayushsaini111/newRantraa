@@ -161,7 +161,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch("/backend/user/profile", {
+        const res = await fetch("https://astro-nine-beige.vercel.app/user/profile", {
           method: "GET",
           headers: getAuthHeaders(),
         });
@@ -227,7 +227,7 @@ export default function ProfilePage() {
         if (v) fd.append(k, v);
       });
 
-      const res = await fetch("/backend/user/profile", {
+      const res = await fetch("https://astro-nine-beige.vercel.app/user/profile", {
         method: "PUT",
         headers: getAuthHeaders(true), // FormData - no Content-Type
         body: fd,
@@ -287,7 +287,7 @@ export default function ProfilePage() {
         phone: form.phone ? form.phone.replace(/\s/g, "") : form.phone,
       };
 
-      const res = await fetch("/backend/user/profile", {
+      const res = await fetch("https://astro-nine-beige.vercel.app/user/profile", {
         method: "PUT",
         headers: getAuthHeaders(),
         body: JSON.stringify(cleanedForm),
@@ -303,7 +303,7 @@ export default function ProfilePage() {
       await update({ name: form.name });
 
       // Refresh profile data
-      const refreshRes = await fetch("/backend/user/profile", {
+      const refreshRes = await fetch("https://astro-nine-beige.vercel.app/user/profile", {
         method: "GET",
         headers: getAuthHeaders(),
       });
@@ -327,7 +327,7 @@ export default function ProfilePage() {
   async function handleDelete() {
     setDeleting(true);
     try {
-      const res = await fetch("/backend/user/delete", {
+      const res = await fetch("https://astro-nine-beige.vercel.app/user/delete", {
         method: "DELETE",
         headers: getAuthHeaders(),
       });

@@ -36,7 +36,7 @@ export default function PlansClient({ plans, status, userId }) {
     setMessage("");
 
     try {
-      const res = await fetch("/backend/plans/buy", {
+      const res = await fetch("https://astro-nine-beige.vercel.app/plans/buy", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
