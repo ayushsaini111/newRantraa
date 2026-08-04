@@ -22,7 +22,7 @@ export function useCallPolling(requestedCalls, userId, onIncomingCall) {
     pollingRef.current = setInterval(async () => {
       for (const callId of callIds) {
         try {
-          const res = await fetch(`https://astro-nine-beige.vercel.app/api/call/status?callId=${callId}`, {
+          const res = await fetch(`/backend/call/status?callId=${callId}`, {
             headers: {
               "x-user-id": userId || "",
             },

@@ -49,8 +49,8 @@ async function sendOtp() {
   setLoading(true);
   setError("");
 
-  // ✅ Use https://astro-nine-beige.vercel.app/api/ prefix - goes through Next.js rewrite, no CORS!
-  const res = await fetch("https://astro-nine-beige.vercel.app/api/auth/sendotps", {
+  // ✅ Use /backend/ prefix - goes through Next.js rewrite, no CORS!
+  const res = await fetch("/backend/auth/sendotps", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone }),
@@ -72,8 +72,8 @@ async function autoVerifyOtp(code) {
   setLoading(true);
   setError("");
 
-  // ✅ Use https://astro-nine-beige.vercel.app/api/ prefix
-  const res = await fetch("https://astro-nine-beige.vercel.app/api/auth/verifyotps", {
+  // ✅ Use /backend/ prefix
+  const res = await fetch("/backend/auth/verifyotps", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ phone, otp: code }),
