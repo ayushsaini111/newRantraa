@@ -45,7 +45,7 @@ function PanditsClient({ pandits = [], userId }) {
   }, []);
 
   // ✅ SSE events (NO POLLING)
-  useSSE(currentUserId ? `https://astro-nine-beige.vercel.app/events?userId=${currentUserId}` : null, {
+  useSSE(currentUserId ? `https://astro-nine-beige.vercel.app/api/events?userId=${currentUserId}` : null, {
     "call-ringing": handleIncomingCall,
     "call-accepted": (data) => {
       ringtoneRef.current?.pause();
@@ -71,7 +71,7 @@ function PanditsClient({ pandits = [], userId }) {
     setLoadingId(pandit.id);
 
     try {
-      const res = await fetch("https://astro-nine-beige.vercel.app/call/initiate", {
+      const res = await fetch("https://astro-nine-beige.vercel.app/api/call/initiate", {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ panditId: pandit.id }),
@@ -100,7 +100,7 @@ function PanditsClient({ pandits = [], userId }) {
     ringtoneRef.current?.pause();
 
     try {
-      const res = await fetch("https://astro-nine-beige.vercel.app/call/accept", {
+      const res = await fetch("https://astro-nine-beige.vercel.app/api/call/accept", {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ callId: incomingCall.id }),
@@ -129,7 +129,7 @@ function PanditsClient({ pandits = [], userId }) {
     const callId = incomingCall.id;
     setIncomingCall(null);
 
-    await fetch("https://astro-nine-beige.vercel.app/call/reject", {
+    await fetch("https://astro-nine-beige.vercel.app/api/call/reject", {
       method: "POST",
       headers: getHeaders(),
       body: JSON.stringify({ callId }),

@@ -68,7 +68,7 @@ export default function AgoraCall({ callData, callerInfo, onEnd, forceEnd }) {
     }
 
     try {
-      const res = await fetch("https://astro-nine-beige.vercel.app/call/end", {
+      const res = await fetch("https://astro-nine-beige.vercel.app/api/call/end", {
         method: "POST",
         headers: getHeaders(),
         body: JSON.stringify({ callId: callData.callId, clientDuration: exactDuration }),
@@ -108,14 +108,14 @@ export default function AgoraCall({ callData, callerInfo, onEnd, forceEnd }) {
     console.log("✅ Remote joined, starting timer");
 
     // Mark call as ongoing
-    fetch("https://astro-nine-beige.vercel.app/call/mark-ongoing", {
+    fetch("https://astro-nine-beige.vercel.app/api/call/mark-ongoing", {
       method: "POST",
       headers: getHeaders(),
       body: JSON.stringify({ callId: callData.callId }),
     }).catch((err) => console.error("Failed to mark call ongoing:", err));
 
     // Fetch server start time
-    fetch(`https://astro-nine-beige.vercel.app/call/status?callId=${callData.callId}`, { headers: getHeaders() })
+    fetch(`https://astro-nine-beige.vercel.app/api/call/status?callId=${callData.callId}`, { headers: getHeaders() })
       .then((r) => r.json())
       .then((serverData) => {
         const serverStart = serverData.startTime
@@ -155,7 +155,7 @@ export default function AgoraCall({ callData, callerInfo, onEnd, forceEnd }) {
 
     const heartbeat = setInterval(async () => {
       try {
-        const res = await fetch("https://astro-nine-beige.vercel.app/call/heartbeat", {
+        const res = await fetch("https://astro-nine-beige.vercel.app/api/call/heartbeat", {
           method: "POST",
           headers: getHeaders(),
           body: JSON.stringify({ callId: callData.callId }),

@@ -1,7 +1,7 @@
 // frontend/src/lib/api-client.js
 import { getSession } from "next-auth/react";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://astro-nine-beige.vercel.app/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://astro-nine-beige.vercel.app/api/api";
 
 class ApiClient {
   async request(endpoint, options = {}) {
