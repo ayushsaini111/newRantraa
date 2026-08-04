@@ -25,7 +25,7 @@ export const authOptions = {
         if (!phone || !token) return null;
 
         // ✅ Verify against old DB only
-        const res = await fetch("/backend/auth/verify-session", {
+        const res = await fetch("https://astro-nine-beige.vercel.app/api/auth/verify-session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ phone, token }),
@@ -53,7 +53,7 @@ export const authOptions = {
   async signIn({ user, account }) {
   if (account.provider !== "google") return true;
 
-  const res = await fetch("/backend/auth/google-signin", {
+  const res = await fetch("https://astro-nine-beige.vercel.app/api/auth/google-signin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
