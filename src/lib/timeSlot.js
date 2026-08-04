@@ -1,3 +1,5 @@
+// src/lib/timeSlots.js
+
 export const TIME_SLOTS = [
   { 
     id: 1, 
