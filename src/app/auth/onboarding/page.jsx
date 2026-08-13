@@ -15,24 +15,35 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showWelcome, setShowWelcome] = useState(false);
+  // ✅ Fix: Store sessionStorage values in state, set inside useEffect
+  const [postOnboardingRedirect, setPostOnboardingRedirect] = useState("");
+  const [isBookingFlow, setIsBookingFlow] = useState(false);
 
-  // Redirect if already onboarded
+  useEffect(() => {
+    // ✅ Safe to access sessionStorage here (client only)
+    const redirectUrl = sessionStorage.getItem("postOnboardingRedirect") || "";
+    setPostOnboardingRedirect(redirectUrl);
+    setIsBookingFlow(
+      redirectUrl.includes("checkout") || redirectUrl.includes("pooja")
+    );
+  }, []);
+
   useEffect(() => {
     if (session?.user?.hasCompletedOnboarding) {
       handlePostOnboardingRedirect();
     }
-    // Pre-fill name from Google session if available
     if (session?.user?.name) {
       setName(session.user.name);
     }
   }, [session]);
 
-  // Handle redirect after onboarding completion
   const handlePostOnboardingRedirect = () => {
-    const redirectUrl = sessionStorage.getItem('postOnboardingRedirect') || '/';
-    sessionStorage.removeItem('postOnboardingRedirect');
-    
-    if (redirectUrl && redirectUrl !== '/') {
+    // ✅ Safe - inside useEffect/handler, not render
+    const redirectUrl =
+      sessionStorage.getItem("postOnboardingRedirect") || "/";
+    sessionStorage.removeItem("postOnboardingRedirect");
+
+    if (redirectUrl && redirectUrl !== "/") {
       router.replace(redirectUrl);
     } else {
       router.replace("/");
@@ -53,7 +64,6 @@ export default function OnboardingPage() {
     setLoading(true);
 
     try {
-      // Check if OTP new user (phone + token in sessionStorage)
       const phone = sessionStorage.getItem("verifiedPhone");
       const token = sessionStorage.getItem("verifiedToken");
 
@@ -63,7 +73,6 @@ export default function OnboardingPage() {
         body: JSON.stringify({
           name,
           dob,
-          // Only send if OTP new user
           ...(phone && token ? { phone, token } : {}),
         }),
       });
@@ -76,12 +85,11 @@ export default function OnboardingPage() {
         return;
       }
 
-      // OTP new user — sign in with fresh token
       if (phone && token) {
         const result = await signIn("otp-credentials", {
           redirect: false,
           phone,
-          token: data.freshToken, // use freshToken not old token
+          token: data.freshToken,
         });
 
         if (result?.error) {
@@ -104,25 +112,25 @@ export default function OnboardingPage() {
     try {
       await fetch("/api/proxy/auth/free-call-popup", { method: "POST" });
     } catch (error) {
-      console.error('Error setting free call popup:', error);
+      console.error("Error setting free call popup:", error);
     }
-    
+
     setShowWelcome(false);
     router.replace("/consult");
   }
 
   function handleCloseWelcome() {
     setShowWelcome(false);
-    
-    // Check if user was in the middle of booking a pooja
-    const redirectUrl = sessionStorage.getItem('postOnboardingRedirect');
-    
-    if (redirectUrl && (redirectUrl.includes('checkout') || redirectUrl.includes('pooja'))) {
-      // User was booking a pooja - continue that flow
-      sessionStorage.removeItem('postOnboardingRedirect');
+
+    const redirectUrl = sessionStorage.getItem("postOnboardingRedirect");
+
+    if (
+      redirectUrl &&
+      (redirectUrl.includes("checkout") || redirectUrl.includes("pooja"))
+    ) {
+      sessionStorage.removeItem("postOnboardingRedirect");
       router.replace(redirectUrl);
     } else {
-      // Normal flow - go to home
       handlePostOnboardingRedirect();
     }
   }
@@ -131,18 +139,18 @@ export default function OnboardingPage() {
     <>
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="w-full max-w-lg rounded-r24 bg-secondary-main border border-border shadow-xl p-10">
-
           <div className="text-center">
             <div className="w-20 h-20 rounded-full bg-primary-light mx-auto flex items-center justify-center text-4xl mb-6">
               👋
             </div>
             <h1 className="heading-h3">Welcome to Rantraa</h1>
             <p className="body-default text-secondary mt-3 max-w-sm mx-auto">
-              Before you begin your spiritual journey, tell us a little about yourself.
+              Before you begin your spiritual journey, tell us a little about
+              yourself.
             </p>
-            
-            {/* Show context if user was booking */}
-            {sessionStorage.getItem('postOnboardingRedirect')?.includes('checkout') && (
+
+            {/* ✅ Fix: Use state instead of sessionStorage directly in render */}
+            {isBookingFlow && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-700">
                   📿 Complete your profile to continue with your pooja booking
@@ -171,7 +179,7 @@ export default function OnboardingPage() {
               value={dob}
               onChange={(e) => setDob(e.target.value)}
               className="mt-2 w-full rounded-r16 border border-border bg-background px-4 py-4 outline-none focus:border-primary"
-              max={new Date().toISOString().split('T')[0]} // Prevent future dates
+              max={new Date().toISOString().split("T")[0]}
             />
           </div>
 
@@ -183,19 +191,19 @@ export default function OnboardingPage() {
 
           <div className="mt-6 rounded-r16 bg-background p-4 border border-border">
             <p className="body-small text-secondary text-center">
-              This information is required only once and can be updated later from your profile settings.
+              This information is required only once and can be updated later
+              from your profile settings.
             </p>
           </div>
 
-          <Button 
-            loading={loading} 
-            onClick={handleSubmit} 
+          <Button
+            loading={loading}
+            onClick={handleSubmit}
             className="w-full mt-8"
             disabled={!name.trim() || !dob}
           >
             {loading ? "Setting up your profile..." : "Continue →"}
           </Button>
-
         </div>
       </div>
 

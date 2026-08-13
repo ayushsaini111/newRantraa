@@ -1,5 +1,7 @@
-// app/consult/page.jsx
 import ConsultClient from "@/components/consult/ConsultClient";
+
+// ✅ Fix 2: Force dynamic rendering
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Consult Expert | Rantraa",
@@ -29,10 +31,5 @@ export default async function ConsultPage() {
     availableSeconds: 300,
   };
 
-  return (
-    <ConsultClient
-      pandits={pandits}
-      balance={balance}
-    />
-  );
+  return <ConsultClient pandits={pandits} balance={balance} />;
 }

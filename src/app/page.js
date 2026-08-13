@@ -11,9 +11,13 @@ import SupportiveSpiritualTools from "@/components/home/SupportiveSpiritualTools
 import UpcomingFestivals from "@/components/home/UpcomingFestivals";
 import OnsiteSection from "@/components/poojas/OnsiteSection";
 
+// ✅ Fix 1: Force dynamic rendering
+export const dynamic = "force-dynamic";
+
 async function getOnsitePoojas() {
   try {
-    const res = await fetch(`http://localhost:3001/api/poojas?category=onsite`, {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    const res = await fetch(`${baseUrl}/api/poojas?category=onsite`, {
       cache: "no-store",
     });
     if (!res.ok) return [];
@@ -33,7 +37,8 @@ export default async function Page() {
       "If you want a hassle-free pooja at your home, book an on-site pooja. Our Pandit Ji will visit with complete pooja samagri and perform every ritual according to Vedic traditions.",
     feature: {
       title: "100% Hassle-Free",
-      description: "No arrangements needed. Pandit Ji arrives with all required pooja samagri.",
+      description:
+        "No arrangements needed. Pandit Ji arrives with all required pooja samagri.",
     },
     cards: onsitePoojas,
   };
@@ -45,16 +50,14 @@ export default async function Page() {
       <PanditSection />
       <SpecialRemediesSection />
       <AstrologyToolsSection />
-      <div className=" mx-auto ">
-
-      <OnsiteSection data={onsiteData} />
+      <div className="mx-auto">
+        <OnsiteSection data={onsiteData} />
       </div>
-
-      <UpcomingFestivals/>
-      <SupportiveSpiritualTools/>
-      <FaqSection/>
-      <SpiritualitySection/>
-      <FullImageSection/>
+      <UpcomingFestivals />
+      <SupportiveSpiritualTools />
+      <FaqSection />
+      <SpiritualitySection />
+      <FullImageSection />
     </div>
   );
 }
