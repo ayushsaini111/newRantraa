@@ -23,15 +23,10 @@ function CallExpertsSection({ pandits = [], requestedCalls = {}, loadingId, onRe
     <section className="flex flex-col gap-s24">
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="heading-h5 text-main">Recommended Experts</h2>
-        <button onClick={() => router.push("/pandits")} className="caption text-primary-light hover:opacity-80 transition-all">
-          View All
-        </button>
-      </div>
+   
 
       {/* Experts List */}
-      <div className="bg-secondary-main rounded-r40 p-s16 lg:p-s24 flex flex-col gap-s16">
+      <div className="bg-secondary-main  rounded-r40 p-s16 lg:p-s24 flex flex-col gap-s16">
 
         {pandits.length === 0 && (
           <p className="caption text-secondary text-center py-4">

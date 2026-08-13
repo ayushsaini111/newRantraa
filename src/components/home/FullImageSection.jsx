@@ -1,0 +1,23 @@
+"use client";
+
+import Image from "next/image";
+
+export default function FullImageSection({
+  src="/om.png",
+  alt = "",
+}) {
+  return (
+    <section className="w-full">
+      <div className="relative w-full py-s104 aspect-[16/6] overflow-hidden">
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover mb-s104"
+        />
+      </div>
+    </section>
+  );
+}

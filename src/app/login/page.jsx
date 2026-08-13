@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { MessageCircle } from "lucide-react";
@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [googleLoading, setGoogleLoading] = useState(false);
   const [step, setStep] = useState("phone"); // phone | otp
 
@@ -20,6 +21,9 @@ export default function LoginPage() {
   const [timer, setTimer] = useState(30);
 
   const inputsRef = useRef([]);
+
+  // Get redirect URL from search params
+  const redirectUrl = searchParams.get('redirect') || '/';
 
   useEffect(() => {
     if (step !== "otp") return;
@@ -37,76 +41,96 @@ export default function LoginPage() {
     return () => clearInterval(interval);
   }, [step]);
 
- // frontend/src/app/login/page.jsx
+  // Handle successful authentication redirect
+  const handleSuccessfulAuth = () => {
+    // If there's a redirect URL, go there, otherwise go to home
+    if (redirectUrl && redirectUrl !== '/') {
+      router.replace(redirectUrl);
+    } else {
+      router.replace('/');
+    }
+  };
 
-// frontend/src/app/login/page.jsx
-async function sendOtp() {
-  if (phone.length !== 10) {
-    setError("Enter valid phone number");
-    return;
+  async function sendOtp() {
+    if (phone.length !== 10) {
+      setError("Enter valid phone number");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/backend/auth/sendotps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+
+      setLoading(false);
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Unable to send OTP");
+        return;
+      }
+
+      setTimer(30);
+      setStep("otp");
+    } catch (error) {
+      setLoading(false);
+      setError("Network error. Please try again.");
+    }
   }
 
-  setLoading(true);
-  setError("");
+  async function autoVerifyOtp(code) {
+    setLoading(true);
+    setError("");
 
-  // ✅ Use /backend/ prefix - goes through Next.js rewrite, no CORS!
-  const res = await fetch("/backend/auth/sendotps", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone }),
-  });
+    try {
+      const res = await fetch("/backend/auth/verifyotps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, otp: code }),
+      });
 
-  setLoading(false);
+      const data = await res.json();
+      setLoading(false);
 
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    setError(data.error || "Unable to send OTP");
-    return;
+      if (!res.ok) {
+        setError(data.error || "Invalid OTP");
+        return;
+      }
+
+      if (data.isNewUser) {
+        // For new users, store redirect URL in sessionStorage for after onboarding
+        sessionStorage.setItem("verifiedPhone", phone);
+        sessionStorage.setItem("verifiedToken", data.verifiedToken);
+        sessionStorage.setItem("postOnboardingRedirect", redirectUrl);
+        router.replace("/auth/onboarding");
+        return;
+      }
+
+      // Existing user - sign them in
+      const result = await signIn("otp-credentials", {
+        redirect: false,
+        phone,
+        token: data.verifiedToken,
+      });
+
+      if (result?.error) {
+        setError("Sign in failed. Please try again.");
+        return;
+      }
+
+      // Successful login - redirect to intended page
+      handleSuccessfulAuth();
+
+    } catch (error) {
+      setLoading(false);
+      setError("Network error. Please try again.");
+    }
   }
-
-  setTimer(30);
-  setStep("otp");
-}
-
-async function autoVerifyOtp(code) {
-  setLoading(true);
-  setError("");
-
-  // ✅ Use /backend/ prefix
-  const res = await fetch("/backend/auth/verifyotps", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone, otp: code }),
-  });
-
-  const data = await res.json();
-  setLoading(false);
-
-  if (!res.ok) {
-    setError(data.error || "Invalid OTP");
-    return;
-  }
-
-  if (data.isNewUser) {
-    sessionStorage.setItem("verifiedPhone", phone);
-    sessionStorage.setItem("verifiedToken", data.verifiedToken);
-    router.replace("/auth/onboarding");
-    return;
-  }
-
-  const result = await signIn("otp-credentials", {
-    redirect: false,
-    phone,
-    token: data.verifiedToken,
-  });
-
-  if (result?.error) {
-    setError("Sign in failed. Please try again.");
-    return;
-  }
-
-  router.replace("/auth/callback");
-}
 
   async function verifyOtp() {
     const code = otp.join("");
@@ -118,52 +142,55 @@ async function autoVerifyOtp(code) {
   }
 
   function handleOtp(index, value) {
-  if (!/^\d*$/.test(value)) return;
+    if (!/^\d*$/.test(value)) return;
 
-  const arr = [...otp];
-  arr[index] = value.slice(-1);
-  setOtp(arr);
-  setError(""); // ← clear error when user starts retyping
+    const arr = [...otp];
+    arr[index] = value.slice(-1);
+    setOtp(arr);
+    setError("");
 
-  if (value && index < 5) {
-    inputsRef.current[index + 1]?.focus();
+    if (value && index < 5) {
+      inputsRef.current[index + 1]?.focus();
+    }
+
+    if (arr.every((d) => d !== "")) {
+      autoVerifyOtp(arr.join(""));
+    }
   }
-
-  if (arr.every((d) => d !== "")) {
-    autoVerifyOtp(arr.join(""));
-  }
-}
 
   async function handleGoogle() {
     try {
       setGoogleLoading(true);
-      await signIn("google", { callbackUrl: "/auth/callback" });
+      // Pass the redirect URL as the callback URL
+      const callbackUrl = redirectUrl && redirectUrl !== '/' 
+        ? `/auth/callback?redirect=${encodeURIComponent(redirectUrl)}`
+        : '/auth/callback';
+        
+      await signIn("google", { callbackUrl });
     } catch (err) {
       console.error(err);
       setGoogleLoading(false);
     }
   }
+
   function handleKeyDown(index, e) {
-  if (e.key === "Backspace") {
-    const arr = [...otp];
-    
-    if (arr[index]) {
-      // Box has value — clear it, stay on same box
-      arr[index] = "";
-      setOtp(arr);
-    } else if (index > 0) {
-      // Box is empty — go to previous box and clear it
-      arr[index - 1] = "";
-      setOtp(arr);
-      inputsRef.current[index - 1]?.focus();
+    if (e.key === "Backspace") {
+      const arr = [...otp];
+      
+      if (arr[index]) {
+        arr[index] = "";
+        setOtp(arr);
+      } else if (index > 0) {
+        arr[index - 1] = "";
+        setOtp(arr);
+        inputsRef.current[index - 1]?.focus();
+      }
     }
   }
-}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-5">
       <div className="w-full max-w-md bg-secondary-main rounded-r24 p-8">
-
         {/* Logo */}
         <div className="mx-auto relative w-28 h-28 mb-6">
           <Image
@@ -174,9 +201,16 @@ async function autoVerifyOtp(code) {
           />
         </div>
 
-        <h2 className="heading-h4 text-center mb-8">
+        <h2 className="heading-h4 text-center mb-2">
           Welcome to Rantraa
         </h2>
+
+        {/* Show context message if coming from booking flow */}
+        {redirectUrl && redirectUrl.includes('checkout') && (
+          <p className="text-center text-sm text-secondary mb-6">
+            Please login to continue your booking
+          </p>
+        )}
 
         {/* STEP: PHONE */}
         {step === "phone" && (
@@ -192,6 +226,7 @@ async function autoVerifyOtp(code) {
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                 className="bg-transparent outline-none flex-1"
                 placeholder="Enter mobile number"
+                autoComplete="tel"
               />
             </div>
 
@@ -249,8 +284,9 @@ async function autoVerifyOtp(code) {
                   value={d}
                   maxLength={1}
                   onChange={(e) => handleOtp(i, e.target.value)}
-                   onKeyDown={(e) => handleKeyDown(i, e)}
+                  onKeyDown={(e) => handleKeyDown(i, e)}
                   className="w-12 h-14 border rounded-r16 text-center text-xl"
+                  autoComplete="one-time-code"
                 />
               ))}
             </div>
@@ -262,6 +298,7 @@ async function autoVerifyOtp(code) {
                 <button
                   onClick={sendOtp}
                   className="text-primary underline"
+                  disabled={loading}
                 >
                   Resend OTP
                 </button>
@@ -285,14 +322,14 @@ async function autoVerifyOtp(code) {
                 setStep("phone");
                 setOtp(["", "", "", "", "", ""]);
                 setError("");
+                setTimer(0);
               }}
-              className="w-full text-center caption text-secondary mt-4"
+              className="w-full text-center caption text-secondary mt-4 hover:text-main transition-colors"
             >
               ← Change number
             </button>
           </>
         )}
-
       </div>
     </div>
   );

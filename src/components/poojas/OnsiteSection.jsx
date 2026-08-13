@@ -18,91 +18,120 @@ export default function OnsiteSection({ data }) {
     if (!sliderRef.current) return;
 
     sliderRef.current.scrollBy({
-      left: direction === "next" ? 360 : -360,
+      left: direction === "next" ? 380 : -380,
       behavior: "smooth",
     });
   };
 
   return (
-    <section className="mt-s104">
-      {/* Top */}
+    <section className="mt-s104 w-full overflow-hidden">
+      {/* =========================
+          TOP CONTENT
+      ========================= */}
+      <div className="mx-auto max-w-7xl px-s16 lg:px-0">
+        <div className="grid gap-s64 lg:grid-cols-12">
+          {/* Left */}
+          <div className="lg:col-span-4">
+            <h2 className="heading-h2">
+              {data?.title}
+            </h2>
 
-      <div className="grid lg:grid-cols-12 gap-s64">
-        {/* Left */}
-
-        <div className="lg:col-span-4">
-          <h2 className="heading-h2">
-            {data.title}
-          </h2>
-
-          <div className="mt-s40">
-            <PoojaCard data={data.cards[0]} />
-          </div>
-        </div>
-
-        {/* Right */}
-
-        <div className="lg:col-span-8 pr-s80 flex flex-col items-end">
-          <p className="body-default max-w-md text-secondary">
-            {data.description}
-          </p>
-
-          <div className="mt-s64 flex max-w-md flex-col gap-s24">
-            <div
-              className="
-                h-15
-                w-15
-                rounded-full
-                bg-secondary-main
-                flex
-                items-center
-                justify-center
-              "
-            >
-              <ShieldCheck
-                size={30}
-                className="text-secondary-dark"
-              />
+            <div className="mt-s40">
+              {data?.cards?.[0] && (
+                <PoojaCard data={data.cards[0]} />
+              )}
             </div>
+          </div>
 
-            <h3 className="heading-h4">
-              {data.feature.title}
-            </h3>
-
-            <p className="body-large text-secondary">
-              {data.feature.description}
+          {/* Right */}
+          <div className="flex flex-col items-end lg:col-span-8">
+            <p className="body-default max-w-md text-secondary">
+              {data?.description}
             </p>
+
+            <div className="mt-s64 flex max-w-md flex-col gap-s24">
+              <div
+                className="
+                  flex
+                  h-15
+                  w-15
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-secondary-main
+                "
+              >
+                <ShieldCheck
+                  size={30}
+                  className="text-secondary-dark"
+                />
+              </div>
+
+              <h3 className="heading-h4">
+                {data?.feature?.title}
+              </h3>
+
+              <p className="body-large text-secondary">
+                {data?.feature?.description}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Slider */}
-
-      <div className="mt-s48 overflow-hidden">
+      {/* =========================
+          HORIZONTAL SLIDER
+          EXTENDS TO RIGHT EDGE
+      ========================= */}
+      <div className="mt-s48 w-full overflow-hidden">
         <div
           ref={sliderRef}
           className="
             flex
             gap-s32
             overflow-x-auto
-            hide-scrollbar
             scroll-smooth
+            hide-scrollbar
+            pl-s16
+            lg:pl-[max(16px,calc((100vw-1280px)/2))]
+            pr-s16
+            lg:pr-s32
           "
         >
-          {data.cards.slice(1).map((item) => (
-            <PoojaCard
+          {data?.cards?.slice(1).map((item) => (
+            <div
               key={item.id}
-              data={item}
-            />
+              className="
+                w-[230px]
+                shrink-0
+                sm:w-[245px]
+                xl:w-[300px]
+              "
+            >
+              <PoojaCard data={item} />
+            </div>
           ))}
 
-          <div className="w-40 shrink-0" />
+          {/* Extra space at right */}
+          <div className="w-s80 shrink-0 lg:w-s104" />
         </div>
       </div>
 
-      {/* Bottom */}
-
-      <div className="flex items-center justify-between mt-s40 pr-s24">
+      {/* =========================
+          BOTTOM CONTROLS
+      ========================= */}
+      <div
+        className="
+          mx-auto
+          mt-s40
+          flex
+          max-w-7xl
+          items-center
+          justify-between
+          px-s16
+          lg:px-s32
+        "
+      >
         <Link href="/poojas/all?mode=On-site">
           <Button
             variant="outline"
@@ -117,7 +146,16 @@ export default function OnsiteSection({ data }) {
             variant="ghost"
             size="md"
             onClick={() => scroll("prev")}
-            className="!h-11 !w-11 !rounded-full !p-0 bg-black text-white hover:bg-gray-800"
+            aria-label="Previous poojas"
+            className="
+              !h-11
+              !w-11
+              !rounded-full
+              !p-0
+              bg-black
+              text-white
+              hover:bg-gray-800
+            "
           >
             <ChevronLeft size={18} />
           </Button>
@@ -126,7 +164,16 @@ export default function OnsiteSection({ data }) {
             variant="ghost"
             size="md"
             onClick={() => scroll("next")}
-            className="!h-11 !w-11 !rounded-full !p-0 bg-black text-white hover:bg-gray-800"
+            aria-label="Next poojas"
+            className="
+              !h-11
+              !w-11
+              !rounded-full
+              !p-0
+              bg-black
+              text-white
+              hover:bg-gray-800
+            "
           >
             <ChevronRight size={18} />
           </Button>

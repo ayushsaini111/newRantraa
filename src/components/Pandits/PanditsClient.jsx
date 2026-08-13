@@ -10,6 +10,7 @@ import PanditsGrid from "./PanditsGrid";
 const AgoraCall = dynamic(() => import("@/components/call/AgoraCall"), { ssr: false });
 
 function PanditsClient({ pandits = [], userId }) {
+  
   const { data: session } = useSession();
   const currentUserId = session?.user?.id || userId;
 

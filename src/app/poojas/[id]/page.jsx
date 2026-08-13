@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import {
   Clock,
@@ -12,19 +14,59 @@ import {
   Languages,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { ONLINE_POOJAS, ONSITE_POOJAS } from "@/data/poojas";
 import useCheckoutStore from "@/store/checkoutStore";
 
 export default function PoojaDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const setPooja = useCheckoutStore((state) => state.setPooja);
+  const { data: session, status } = useSession();
+  
+  // Rename to avoid conflict - this is for the checkout store
+  const setPoojaInStore = useCheckoutStore((state) => state.setPooja);
+  
+  // This is for the local component state
+  const [pooja, setPoojaData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Find pooja from both online and onsite
-  const allPoojas = [...ONLINE_POOJAS.cards, ...ONSITE_POOJAS.cards];
-  const pooja = allPoojas.find((p) => p.id === parseInt(params.id));
+  useEffect(() => {
+    const fetchPooja = async () => {
+      try {
+        // Handle async params if needed
+        const id = await params.id || params.id;
+        
+        const response = await fetch(`/backend/poojas/${id}`);
+        if (!response.ok) {
+          throw new Error('Pooja not found');
+        }
+        const data = await response.json();
+        setPoojaData(data); // Use the renamed setter
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!pooja) {
+    if (params.id) {
+      fetchPooja();
+    }
+  }, [params.id]);
+
+ const handleBookNow = () => {
+  setPoojaInStore(pooja);
+  router.push(`/checkout?poojaId=${pooja.id}`);
+};
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-main"></div>
+      </div>
+    );
+  }
+
+  if (error || !pooja) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-xl">Pooja not found</p>
@@ -32,13 +74,8 @@ export default function PoojaDetailPage() {
     );
   }
 
-  const handleBookNow = () => {
-    setPooja(pooja);
-    router.push(`/checkout?poojaId=${pooja.id}`);
-  };
-
   const discount = Math.round(
-    ((pooja.price - pooja.offerPrice) / pooja.price) * 100
+    ((pooja.price - pooja.offer_price) / pooja.price) * 100
   );
 
   return (
@@ -117,7 +154,7 @@ export default function PoojaDetailPage() {
             <div className="bg-gradient-to-r from-primary-light to-secondary-light p-6 rounded-xl">
               <div className="flex items-end gap-4 mb-2">
                 <span className="text-4xl font-bold text-main">
-                  ₹{pooja.offerPrice}
+                  ₹{pooja.offer_price}
                 </span>
                 <span className="text-2xl text-secondary line-through mb-1">
                   ₹{pooja.price}
@@ -167,7 +204,7 @@ export default function PoojaDetailPage() {
                   <div>
                     <p className="font-semibold text-main">Languages</p>
                     <p className="text-sm text-secondary">
-                      {pooja.language.join(", ")}
+                      {Array.isArray(pooja.language) ? pooja.language.join(", ") : pooja.language}
                     </p>
                   </div>
                 </div>
@@ -201,8 +238,9 @@ export default function PoojaDetailPage() {
               <Button
                 onClick={handleBookNow}
                 className="w-full !h-14 !text-lg"
+                disabled={status === "loading"}
               >
-                Book Now - ₹{pooja.offerPrice}
+                {status === "loading" ? "Loading..." : `Book Now - ₹${pooja.offer_price}`}
               </Button>
               <p className="text-center text-sm text-secondary mt-3">
                 100% Safe & Secure Payment

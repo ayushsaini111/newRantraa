@@ -46,7 +46,7 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
   const handleIncomingCall = useCallback((callData) => {
     setIncomingCall(callData);
     setRequestedCalls({});
-    ringtoneRef.current?.play().catch(() => {});
+    ringtoneRef.current?.play().catch(() => { });
   }, []);
 
   // SSE events
@@ -130,7 +130,7 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
       });
 
       const data = await res.json();
-      
+
       if (!res.ok) {
         alert(data.error || "Failed to connect");
         return;
@@ -149,7 +149,7 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
   async function handleReject() {
     if (!incomingCall) return;
     ringtoneRef.current?.pause();
-    
+
     const callId = incomingCall.id;
     setIncomingCall(null);
 
@@ -180,8 +180,13 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
       <PageHeader title="Consult" subtitle="Talk to verified spiritual experts" />
 
       <div className="max-w-7xl mx-auto px-s16 py-s40 lg:px-s32">
+          <div className="flex items-center justify-between max-w-3xl mb-s24">
+            <h2 className="heading-h5 text-main">Recommended Experts</h2>
+            <button onClick={() => router.push("/pandits")} className="caption text-primary-light hover:opacity-80 transition-all">
+              View All
+            </button>
+          </div>
         <div className="grid lg:grid-cols-[1fr_420px] gap-s40">
-          
           {/* Left: Experts */}
           <CallExpertsSection
             pandits={pandits}
@@ -228,7 +233,7 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
             <p className="caption text-zinc-400 uppercase tracking-widest mb-s24">
               Incoming Call
             </p>
-            
+
             <div className="relative w-32 h-32 mx-auto mb-s32">
               <div className="absolute inset-0 rounded-full bg-emerald-400 opacity-20 animate-ping" />
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center text-white font-bold text-4xl shadow-2xl">

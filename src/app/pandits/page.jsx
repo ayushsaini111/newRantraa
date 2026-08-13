@@ -4,19 +4,29 @@ import { authOptions } from "@/lib/auth";
 import ProductsHeader from "@/components/ProductsHeader";
 import PanditsClient from "@/components/Pandits/PanditsClient";
 
+// frontend/src/app/pandits/page.jsx
 async function fetchPandits() {
   try {
-    const res = await fetch("/backend/api/pandits", {
+    const res = await fetch("https://astro-nine-beige.vercel.app/api/pandits", {
       cache: "no-store",
     });
-    if (!res.ok) return [];
-    return await res.json();
+    
+    console.log("Fetched pandits response status:", res.status);
+    
+    if (!res.ok) {
+      console.error("Failed to fetch pandits:", res.status);
+      return [];
+    }
+    
+    const data = await res.json(); // ✅ Parse once
+    console.log("Fetched pandits response:", data);
+    return data; // ✅ Return the parsed data
+    
   } catch (error) {
-    console.log("Error fetching pandits:", error.message);
+    console.error("Error fetching pandits:", error.message);
     return [];
   }
 }
-
 export default async function PanditsPage({ searchParams }) {
   const params = await searchParams;
   const search = params?.search || "";

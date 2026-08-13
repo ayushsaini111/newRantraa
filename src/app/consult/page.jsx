@@ -1,8 +1,5 @@
 // app/consult/page.jsx
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import ConsultClient from "@/components/consult/ConsultClient";
-import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Consult Expert | Rantraa",
@@ -22,14 +19,7 @@ async function fetchPandits() {
   }
 }
 
-
 export default async function ConsultPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
-
   const pandits = await fetchPandits();
 
   const balance = {
@@ -43,9 +33,6 @@ export default async function ConsultPage() {
     <ConsultClient
       pandits={pandits}
       balance={balance}
-      userId={session.user.id}
-      userName={session.user.name || "User"}
-      userImage={session.user.image}
     />
   );
 }

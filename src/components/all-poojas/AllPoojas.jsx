@@ -1,143 +1,202 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+
 import SearchBar from "./SearchBar";
 import FilterBar from "./FilterBar";
 import PoojaGrid from "./PoojaGrid";
 
-import {
-  ONLINE_POOJAS,
-  ONSITE_POOJAS,
-} from "@/data/poojas";
+const REMEDY_FILTERS = [
+  "shiv-ji-pooja",
+  "wealth-prosperity",
+  "home-family",
+  "planetary-remedies",
+  "career-business",
+  "love-marriage",
+  "health-protection",
+  "vastu-shanti",
+];
 
 export default function AllPoojas() {
-    const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
+
   const [search, setSearch] = useState("");
   const [mode, setMode] = useState(
-  searchParams.get("mode") || "All"
-);
-useEffect(() => {
-  const modeParam = searchParams.get("mode");
+    searchParams.get("mode") || "All"
+  );
+  const [filter, setFilter] = useState(
+    searchParams.get("filter") || "All"
+  );
 
-  if (modeParam) {
-    setMode(modeParam);
-  } else {
-    setMode("All");
-  }
-}, [searchParams]);
-  const [sort, setSort] = useState("popular");
+  const [poojas, setPoojas] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const deferredSearch = useDeferredValue(search);
 
-  const allPoojas = useMemo(
-    () => [
-      ...ONLINE_POOJAS.cards,
-      ...ONSITE_POOJAS.cards,
-    ],
-    []
-  );
+  /* ---------------- Fetch Poojas ---------------- */
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchPoojas() {
+      try {
+        setLoading(true);
+
+        const res = await fetch("/backend/poojas", {
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch poojas");
+        }
+
+        const data = await res.json();
+
+        if (!cancelled) {
+          setPoojas(
+            Array.isArray(data)
+              ? data
+              : data?.poojas || []
+          );
+        }
+      } catch (error) {
+        console.error("Fetch poojas error:", error);
+
+        if (!cancelled) {
+          setPoojas([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchPoojas();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* ---------------- URL Filters ---------------- */
+
+  useEffect(() => {
+    setMode(searchParams.get("mode") || "All");
+    setFilter(searchParams.get("filter") || "All");
+  }, [searchParams]);
+
+  /* ---------------- Filter ---------------- */
 
   const filteredPoojas = useMemo(() => {
-    let list = [...allPoojas];
+    let list = [...poojas];
 
-    // Mode
+    /* Mode */
     if (mode === "Online") {
       list = list.filter(
-        (item) => item.mode === "Video Call"
+        (item) =>
+          item.mode === "Video Call" ||
+          item.category === "online"
       );
     }
 
     if (mode === "On-site") {
       list = list.filter(
-        (item) => item.mode === "At Home"
+        (item) =>
+          item.mode === "At Home" ||
+          item.category === "onsite"
       );
     }
 
-    // Search
-    const keyword = deferredSearch.trim().toLowerCase();
+    /* Remedy filter */
+    if (
+      filter !== "All" &&
+      REMEDY_FILTERS.includes(filter)
+    ) {
+      list = list.filter(
+        (item) => item.filter === filter
+      );
+    }
+
+    /* Search */
+    const keyword = deferredSearch
+      .trim()
+      .toLowerCase();
 
     if (keyword) {
       list = list.filter((item) => {
+        const title =
+          item.title?.toLowerCase() || "";
+
+        const shortDescription =
+          (
+            item.short_description ||
+            item.shortDescription ||
+            ""
+          ).toLowerCase();
+
+        const description =
+          item.description?.toLowerCase() || "";
+
+        const itemMode =
+          item.mode?.toLowerCase() || "";
+
         return (
-          item.title.toLowerCase().includes(keyword) ||
-          item.shortDescription
-            .toLowerCase()
-            .includes(keyword) ||
-          item.description
-            .toLowerCase()
-            .includes(keyword) ||
-          item.mode.toLowerCase().includes(keyword) ||
-          item.language.some((lang) =>
-            lang.toLowerCase().includes(keyword)
-          )
+          title.includes(keyword) ||
+          shortDescription.includes(keyword) ||
+          description.includes(keyword) ||
+          itemMode.includes(keyword)
         );
       });
     }
 
-    // Sort
-    switch (sort) {
-      case "rating":
-        list.sort((a, b) => b.rating - a.rating);
-        break;
-
-      case "price-asc":
-        list.sort(
-          (a, b) => a.offerPrice - b.offerPrice
-        );
-        break;
-
-      case "price-desc":
-        list.sort(
-          (a, b) => b.offerPrice - a.offerPrice
-        );
-        break;
-
-      default:
-        list.sort((a, b) => {
-          if (a.popular === b.popular) return 0;
-          return a.popular ? -1 : 1;
-        });
-    }
-
     return list;
   }, [
-    allPoojas,
-    deferredSearch,
+    poojas,
     mode,
-    sort,
+    filter,
+    deferredSearch,
   ]);
 
   function clearFilters() {
     setSearch("");
     setMode("All");
-    setSort("popular");
+    setFilter("All");
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 lg:px-8">
+    <div className="mx-auto max-w-7xl px-s16 lg:px-s32">
+
       <SearchBar
         value={search}
         onChange={setSearch}
-        data={allPoojas}
+        data={poojas}
       />
 
       <div className="mt-s32">
         <FilterBar
           mode={mode}
           setMode={setMode}
-          sort={sort}
-          setSort={setSort}
-          total={filteredPoojas.length}
+          filter={filter}
+          setFilter={setFilter}
           search={search}
+          setSearch={setSearch}
+          total={filteredPoojas.length}
+          totalData={poojas.length}
           clearFilters={clearFilters}
         />
       </div>
 
-      <PoojaGrid
-        poojas={filteredPoojas}
-      />
+      {loading ? (
+        <div className="py-s80 text-center">
+          <p className="body-default text-secondary">
+            Loading poojas...
+          </p>
+        </div>
+      ) : (
+        <PoojaGrid poojas={filteredPoojas} />
+      )}
     </div>
   );
 }

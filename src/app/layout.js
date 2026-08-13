@@ -6,6 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import MobileBottomBar from "@/components/layout/MobileBottomBar";
 import AuthProvider from "@/components/providers/SessionProvider";
 import AuthSync from "@/components/providers/AuthSync";
+import Footer from "@/components/footer/Footer";
 
 const Primary = Lora({
   variable: "--font-Lora-Serif",
@@ -45,6 +46,7 @@ export default function RootLayout({ children }) {
             <main className="pb-20 lg:pb-0">
               {children}
             </main>
+            <Footer/>
 
             <MobileBottomBar />
           </div>

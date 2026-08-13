@@ -10,11 +10,10 @@ import DateSelector from "@/components/checkout/DateSelector";
 import TimeSlotSelector from "@/components/checkout/TimeSlotSelector";
 import ConfirmationModal from "@/components/checkout/ConfirmationModal";
 import useCheckoutStore from "@/store/checkoutStore";
-import { ONLINE_POOJAS, ONSITE_POOJAS } from "@/data/poojas";
 
 const TIME_SLOT_LABELS = {
   "8-12": "8:00 AM - 12:00 PM",
-  "12-15": "12:00 PM - 3:00 PM",
+  "12-15": "12:00 PM - 3:00 PM", 
   "15-19": "3:00 PM - 7:00 PM",
   "19-22": "7:00 PM - 10:00 PM",
 };
@@ -58,19 +57,47 @@ export default function CheckoutForm() {
   } = useCheckoutStore();
 
   const [loading, setLoading] = useState(false);
+  const [poojaLoading, setPoojaLoading] = useState(true); // New loading state for pooja fetch
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
   const [errors, setErrors] = useState({});
   const [needsPhone, setNeedsPhone] = useState(false);
 
-  // Load pooja
+  // 🔥 Load pooja from database API instead of static data
   useEffect(() => {
-    if (!pooja && poojaId) {
-      const allPoojas = [...ONLINE_POOJAS.cards, ...ONSITE_POOJAS.cards];
-      const found = allPoojas.find((p) => p.id === parseInt(poojaId));
-      if (found) setPooja(found);
-      else router.push("/poojas");
+    async function fetchPooja() {
+      if (!poojaId) {
+        router.push("/poojas");
+        return;
+      }
+
+      // Check if we already have the right pooja in store
+      if (pooja && String(pooja.id) === String(poojaId)) {
+        setPoojaLoading(false);
+        return;
+      }
+
+      try {
+        setPoojaLoading(true);
+        
+        const response = await fetch(`/api/poojas/${poojaId}`);
+        
+        if (!response.ok) {
+          throw new Error('Pooja not found');
+        }
+        
+        const fetchedPooja = await response.json();
+        setPooja(fetchedPooja);
+        
+      } catch (error) {
+        console.error('Error fetching pooja:', error);
+        router.push("/poojas");
+      } finally {
+        setPoojaLoading(false);
+      }
     }
+
+    fetchPooja();
   }, [poojaId, pooja, setPooja, router]);
 
   // Auto-fetch user details from session-based API
@@ -137,13 +164,12 @@ export default function CheckoutForm() {
     try {
       // Save phone if Google user added it
       if (needsPhone && userDetails.phone) {
+        const fd = new FormData();
+        fd.append("phone", userDetails.phone);
+        
         await fetch("/api/user/profile", {
           method: "PUT",
-          body: (() => {
-            const fd = new FormData();
-            fd.append("phone", userDetails.phone);
-            return fd;
-          })(),
+          body: fd,
         });
       }
 
@@ -151,7 +177,7 @@ export default function CheckoutForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: pooja.offerPrice * 100,
+          amount: pooja.offer_price * 100, // 🔥 Updated to match DB field name
           currency: "INR",
           poojaId: pooja.id,
           poojaTitle: pooja.title,
@@ -242,15 +268,32 @@ export default function CheckoutForm() {
     }
   }
 
-  if (!pooja) {
+  // 🔥 Loading state for pooja fetch
+  if (poojaLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-secondary">Loading pooja details...</p>
+        </div>
       </div>
     );
   }
 
-  const discount = pooja.price - pooja.offerPrice;
+  if (!pooja) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl text-secondary mb-4">Pooja not found</p>
+          <Button onClick={() => router.push("/poojas")}>
+            Back to Poojas
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const discount = pooja.price - pooja.offer_price; // 🔥 Updated to match DB field names
 
   return (
     <>
@@ -293,7 +336,6 @@ export default function CheckoutForm() {
                         placeholder="10-digit number"
                         maxLength={10}
                         className="bg-transparent outline-none flex-1 body-small"
-                        // Editable if Google user has no phone
                         readOnly={!!userDetails.phone && !needsPhone}
                       />
                     </div>
@@ -416,16 +458,16 @@ export default function CheckoutForm() {
                   )}
                   <div className="flex justify-between border-t border-border pt-3">
                     <span className="body-default font-semibold">Total</span>
-                    <span className="body-default font-semibold">₹{pooja.offerPrice}</span>
+                    <span className="body-default font-semibold">₹{pooja.offer_price}</span>
                   </div>
                 </div>
 
                 {/* Trust badge */}
-                <div className="flex items-center gap-3 bg-green-50rounded-r8 p-3 mt-5">
+                <div className="flex items-center gap-3 bg-green-50 rounded-r8 p-3 mt-5">
                   <ShieldCheck size={20} className="text-green-600 shrink-0" />
                   <div>
-                    <p className="caption font-semibold text-green-900 dark:text-green-400">Safe & Secure Payment</p>
-                    <p className="caption text-green-700 dark:text-green-500">100% Payment Protection</p>
+                    <p className="caption font-semibold text-green-900">Safe & Secure Payment</p>
+                    <p className="caption text-green-700">100% Payment Protection</p>
                   </div>
                 </div>
 
@@ -434,7 +476,7 @@ export default function CheckoutForm() {
                   loading={loading}
                   className="w-full mt-5"
                 >
-                  Pay ₹{pooja.offerPrice}
+                  Pay ₹{pooja.offer_price}
                 </Button>
 
                 <p className="caption text-center text-secondary mt-3">
