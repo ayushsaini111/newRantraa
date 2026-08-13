@@ -15,12 +15,10 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showWelcome, setShowWelcome] = useState(false);
-  // ✅ Fix: Store sessionStorage values in state, set inside useEffect
   const [postOnboardingRedirect, setPostOnboardingRedirect] = useState("");
   const [isBookingFlow, setIsBookingFlow] = useState(false);
 
   useEffect(() => {
-    // ✅ Safe to access sessionStorage here (client only)
     const redirectUrl = sessionStorage.getItem("postOnboardingRedirect") || "";
     setPostOnboardingRedirect(redirectUrl);
     setIsBookingFlow(
@@ -29,6 +27,7 @@ export default function OnboardingPage() {
   }, []);
 
   useEffect(() => {
+    // Already onboarded users should never see this page
     if (session?.user?.hasCompletedOnboarding) {
       handlePostOnboardingRedirect();
     }
@@ -38,9 +37,7 @@ export default function OnboardingPage() {
   }, [session]);
 
   const handlePostOnboardingRedirect = () => {
-    // ✅ Safe - inside useEffect/handler, not render
-    const redirectUrl =
-      sessionStorage.getItem("postOnboardingRedirect") || "/";
+    const redirectUrl = sessionStorage.getItem("postOnboardingRedirect") || "/";
     sessionStorage.removeItem("postOnboardingRedirect");
 
     if (redirectUrl && redirectUrl !== "/") {
@@ -67,13 +64,15 @@ export default function OnboardingPage() {
       const phone = sessionStorage.getItem("verifiedPhone");
       const token = sessionStorage.getItem("verifiedToken");
 
-      const res = await fetch("/api/proxy/auth/onboarding", {
+      const res = await fetch("/backend/auth/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
           dob,
           ...(phone && token ? { phone, token } : {}),
+          ...(session?.user?.id ? { userId: session.user.id } : {}),
+          ...(session?.user?.email ? { userEmail: session.user.email } : {}),
         }),
       });
 
@@ -101,6 +100,7 @@ export default function OnboardingPage() {
         sessionStorage.removeItem("verifiedToken");
       }
 
+      // Show welcome bonus for ALL new users — OTP and Google alike
       setShowWelcome(true);
     } catch (error) {
       setLoading(false);
@@ -108,9 +108,10 @@ export default function OnboardingPage() {
     }
   }
 
+  // Option 1: user clicks "Start Consultation" → goes to /consult
   async function handleStartConsultation() {
     try {
-      await fetch("/api/proxy/auth/free-call-popup", { method: "POST" });
+      await fetch("/backend/auth/free-call-popup", { method: "POST" });
     } catch (error) {
       console.error("Error setting free call popup:", error);
     }
@@ -119,19 +120,17 @@ export default function OnboardingPage() {
     router.replace("/consult");
   }
 
+  // Option 2: user clicks ✕ → continues to home (or wherever they were headed)
   function handleCloseWelcome() {
     setShowWelcome(false);
 
     const redirectUrl = sessionStorage.getItem("postOnboardingRedirect");
+    sessionStorage.removeItem("postOnboardingRedirect");
 
-    if (
-      redirectUrl &&
-      (redirectUrl.includes("checkout") || redirectUrl.includes("pooja"))
-    ) {
-      sessionStorage.removeItem("postOnboardingRedirect");
+    if (redirectUrl && redirectUrl !== "/") {
       router.replace(redirectUrl);
     } else {
-      handlePostOnboardingRedirect();
+      router.replace("/");
     }
   }
 
@@ -149,7 +148,6 @@ export default function OnboardingPage() {
               yourself.
             </p>
 
-            {/* ✅ Fix: Use state instead of sessionStorage directly in render */}
             {isBookingFlow && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-700">
