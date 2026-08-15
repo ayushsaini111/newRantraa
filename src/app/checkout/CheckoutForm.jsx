@@ -80,7 +80,7 @@ export default function CheckoutForm() {
       try {
         setPoojaLoading(true);
         
-        const response = await fetch(`/api/poojas/${poojaId}`);
+        const response = await fetch(`/backend/poojas/${poojaId}`);
         
         if (!response.ok) {
           throw new Error('Pooja not found');
@@ -101,30 +101,37 @@ export default function CheckoutForm() {
   }, [poojaId, pooja, setPooja, router]);
 
   // Auto-fetch user details from session-based API
-  useEffect(() => {
-    if (!session?.user?.id) return;
+// Auto-fetch user details from session-based API
+useEffect(() => {
+  if (!session?.user?.id) return;
 
-    fetch("/api/user/profile")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data) {
-          setUserDetails({
-            name: data.name || "",
-            phone: data.phone || "",
-            email: data.email || "",
-            houseNo: data.houseNo || "",
-            address: data.address || "",
-            landmark: data.landmark || "",
-            pinCode: data.pinCode || "",
-          });
-          // Google user with no phone yet
-          if (!data.phone && data.provider === "GOOGLE") {
-            setNeedsPhone(true);
-          }
+  fetch("/backend/user/profile", {
+    headers: {
+      'x-user-id': session.user.id,
+      'x-user-email': session.user.email || '',
+      'x-user-name': session.user.name || '',
+    }
+  })
+    .then((r) => r.json())
+    .then((data) => {
+      if (data) {
+        setUserDetails({
+          name: data.name || "",
+          phone: data.phone || "",
+          email: data.email || "",
+          houseNo: data.houseNo || "",
+          address: data.address || "",
+          landmark: data.landmark || "",
+          pinCode: data.pinCode || "",
+        });
+        // Google user with no phone yet
+        if (!data.phone && data.provider === "GOOGLE") {
+          setNeedsPhone(true);
         }
-      })
-      .catch(console.error);
-  }, [session, setUserDetails]);
+      }
+    })
+    .catch(console.error);
+}, [session, setUserDetails]);
 
   function validate() {
     const e = {};
@@ -156,117 +163,124 @@ export default function CheckoutForm() {
     return Object.keys(e).length === 0;
   }
 
-  async function initiatePayment() {
-    if (!validate()) return;
+ // In CheckoutForm.jsx
+async function initiatePayment() {
+  if (!validate()) return;
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      // Save phone if Google user added it
-      if (needsPhone && userDetails.phone) {
-        const fd = new FormData();
-        fd.append("phone", userDetails.phone);
-        
-        await fetch("/api/user/profile", {
-          method: "PUT",
-          body: fd,
-        });
-      }
+  try {
+    // Save phone if Google user added it
+    if (needsPhone && userDetails.phone) {
+      const fd = new FormData();
+      fd.append("phone", userDetails.phone);
 
-      const orderRes = await fetch("/api/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: pooja.offer_price * 100, // 🔥 Updated to match DB field name
-          currency: "INR",
-          poojaId: pooja.id,
-          poojaTitle: pooja.title,
-        }),
-      });
-
-      const orderData = await orderRes.json();
-      if (!orderData.success) throw new Error(orderData.error);
-
-      if (typeof window.Razorpay === "undefined") {
-        alert("Payment gateway not loaded. Please refresh.");
-        setLoading(false);
-        return;
-      }
-
-      const razorpay = new window.Razorpay({
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: orderData.order.amount,
-        currency: orderData.order.currency,
-        name: "Rantraa",
-        description: pooja.title,
-        order_id: orderData.order.id,
-        prefill: {
-          name: userDetails.name,
-          email: userDetails.email,
-          contact: `+91${userDetails.phone}`,
+      await fetch("/backend/user/profile", {
+        method: "PUT",
+        headers: {
+          'x-user-id': session.user.id,
+          'x-user-email': session.user.email || '',
+          'x-user-name': session.user.name || '',
         },
-        theme: { color: "#FF6B35" },
-        handler: async (response) => {
-          await verifyPayment(response);
-        },
-        modal: {
-          ondismiss: () => setLoading(false),
-        },
+        body: fd,
       });
+    }
 
-      razorpay.on("payment.failed", (r) => {
-        alert("Payment failed: " + r.error.description);
-        setLoading(false);
+    const orderRes = await fetch("/backend/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: pooja.offer_price * 100,
+        currency: "INR",
+        poojaId: pooja.id,
+        poojaTitle: pooja.title,
+      }),
+    });
+
+    const orderData = await orderRes.json();
+    if (!orderData.success) throw new Error(orderData.error);
+
+    if (typeof window.Razorpay === "undefined") {
+      alert("Payment gateway not loaded. Please refresh.");
+      setLoading(false);
+      return;
+    }
+
+    const razorpay = new window.Razorpay({
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      amount: orderData.order.amount,
+      currency: orderData.order.currency,
+      name: "Rantraa",
+      description: pooja.title,
+      order_id: orderData.order.id,
+      prefill: {
+        name: userDetails.name,
+        email: userDetails.email,
+        contact: `+91${userDetails.phone}`,
+      },
+      theme: { color: "#FF6B35" },
+      handler: async (response) => {
+        await verifyPayment(response);
+      },
+      modal: {
+        ondismiss: () => setLoading(false),
+      },
+    });
+
+    razorpay.on("payment.failed", (r) => {
+      alert("Payment failed: " + r.error.description);
+      setLoading(false);
+    });
+
+    razorpay.open();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to initiate payment. Please try again.");
+    setLoading(false);
+  }
+}
+
+async function verifyPayment(response) {
+  try {
+    const res = await fetch("/backend/verify-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...response,
+        userDetails,
+        pooja,
+        selectedDate,
+        selectedTimeSlot,
+        userId: session.user.id,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      setBookingDetails({
+        bookingId: data.booking.bookingId,
+        date: selectedDate,
+        timeSlot: TIME_SLOT_LABELS[selectedTimeSlot],
+        address:
+          pooja.mode === "At Home"
+            ? `${userDetails.houseNo}, ${userDetails.address}${userDetails.landmark ? ", " + userDetails.landmark : ""}, ${userDetails.pinCode}`
+            : "Online via Video Call",
+        phone: userDetails.phone,
+        email: userDetails.email,
       });
-
-      razorpay.open();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to initiate payment. Please try again.");
+      setShowConfirmation(true);
+      setLoading(false);
+    } else {
+      alert(data.message || "Payment verification failed");
       setLoading(false);
     }
+  } catch (err) {
+    console.error(err);
+    alert("Verification failed. Please contact support.");
+    setLoading(false);
   }
-
-  async function verifyPayment(response) {
-    try {
-      const res = await fetch("/api/verify-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...response,
-          userDetails,
-          pooja,
-          selectedDate,
-          selectedTimeSlot,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setBookingDetails({
-          bookingId: data.booking.bookingId,
-          date: selectedDate,
-          timeSlot: TIME_SLOT_LABELS[selectedTimeSlot],
-          address:
-            pooja.mode === "At Home"
-              ? `${userDetails.houseNo}, ${userDetails.address}${userDetails.landmark ? ", " + userDetails.landmark : ""}, ${userDetails.pinCode}`
-              : "Online via Video Call",
-          phone: userDetails.phone,
-          email: userDetails.email,
-        });
-        setShowConfirmation(true);
-        setLoading(false);
-      } else {
-        alert(data.message || "Payment verification failed");
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Verification failed. Please contact support.");
-      setLoading(false);
-    }
-  }
+}
 
   // 🔥 Loading state for pooja fetch
   if (poojaLoading) {

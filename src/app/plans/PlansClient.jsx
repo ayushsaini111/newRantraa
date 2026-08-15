@@ -1,4 +1,3 @@
-// frontend/src/app/plans/PlansClient.jsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -24,11 +23,26 @@ export default function PlansClient({ plans, status, userId }) {
   const [buying, setBuying] = useState(null);
   const [message, setMessage] = useState("");
 
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
+
   async function handleBuy(plan) {
     const currentUserId = session?.user?.id || userId;
 
     if (!currentUserId) {
       setMessage("❌ Please login first.");
+      setTimeout(() => router.push("/login?callbackUrl=/plans"), 1500);
       return;
     }
 
@@ -36,7 +50,8 @@ export default function PlansClient({ plans, status, userId }) {
     setMessage("");
 
     try {
-      const res = await fetch("/backend/plans/buy", {
+      // 1. Create Razorpay order
+      const orderRes = await fetch("/backend/create-plan-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,27 +59,116 @@ export default function PlansClient({ plans, status, userId }) {
           "x-user-email": session?.user?.email || "",
           "x-user-name": session?.user?.name || "",
         },
-        body: JSON.stringify({ planId: plan.id }),
+        body: JSON.stringify({
+          planId: plan.id,
+          planName: plan.name,
+          price: plan.price,
+          seconds: plan.seconds,
+          validDays: plan.validDays,
+          perDayLimit: plan.perDayLimit,
+        }),
+      });
+
+      const orderData = await orderRes.json();
+
+      if (!orderData.success) {
+        throw new Error(orderData.error || "Failed to create order");
+      }
+
+      // 2. Check if Razorpay is loaded
+      if (typeof window.Razorpay === "undefined") {
+        setMessage("❌ Payment gateway not loaded. Please refresh the page.");
+        setBuying(null);
+        return;
+      }
+
+      // 3. Open Razorpay checkout
+      const razorpay = new window.Razorpay({
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: orderData.order.amount,
+        currency: orderData.order.currency,
+        name: "Rantraa",
+        description: `${plan.name} - ${formatSeconds(plan.seconds)}`,
+        order_id: orderData.order.id,
+        prefill: {
+          name: session?.user?.name || "",
+          email: session?.user?.email || "",
+          contact: session?.user?.phone || "",
+        },
+        theme: { 
+          color: "#8A5AB8" 
+        },
+        handler: async (response) => {
+          await verifyPayment(response, plan);
+        },
+        modal: {
+          ondismiss: () => {
+            setBuying(null);
+            setMessage("❌ Payment cancelled");
+          },
+        },
+      });
+
+      razorpay.on("payment.failed", (response) => {
+        console.error("Payment failed:", response.error);
+        setMessage(`❌ Payment failed: ${response.error.description}`);
+        setBuying(null);
+      });
+
+      razorpay.open();
+
+    } catch (error) {
+      console.error("Buy error:", error);
+      setMessage(`❌ ${error.message || "Something went wrong"}`);
+      setBuying(null);
+    }
+  }
+
+  async function verifyPayment(response, plan) {
+    try {
+      const currentUserId = session?.user?.id || userId;
+
+      const res = await fetch("/backend/verify-plan-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": currentUserId,
+          "x-user-email": session?.user?.email || "",
+          "x-user-name": session?.user?.name || "",
+        },
+        body: JSON.stringify({
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+          planDetails: {
+            planId: plan.id,
+            planName: plan.name,
+            price: plan.price,
+            seconds: plan.seconds,
+            validDays: plan.validDays,
+          },
+        }),
       });
 
       const data = await res.json();
 
-      if (res.ok) {
-        setMessage("✅ Plan activated!");
+      if (data.success) {
+        setMessage(`✅ ${data.message || "Plan activated successfully!"}`);
         
         setTimeout(() => {
-          // ✅ Return to source page or consult by default
+          // Return to source page or consult by default
           const returnUrl = sessionStorage.getItem("returnUrl") || "/consult";
           sessionStorage.removeItem("returnUrl");
           router.push(returnUrl);
-        }, 1000);
+          router.refresh(); // Refresh to update plan status
+        }, 1500);
       } else {
-        setMessage(`❌ ${data.error}`);
+        setMessage(`❌ ${data.message || "Payment verification failed"}`);
+        setBuying(null);
       }
     } catch (error) {
-      console.error("Buy error:", error);
-      setMessage("❌ Something went wrong");
-    } finally {
+      console.error("Verification error:", error);
+      setMessage("❌ Payment verification failed. Please contact support.");
       setBuying(null);
     }
   }
@@ -135,8 +239,16 @@ export default function PlansClient({ plans, status, userId }) {
 
       {/* Message */}
       {message && (
-        <div className="bg-secondary-main/50 rounded-r16 p-s16 mb-s24 text-center">
-          <p className="body-default font-medium">{message}</p>
+        <div className={`rounded-r16 p-s16 mb-s24 text-center ${
+          message.includes("✅") 
+            ? "bg-green-50 border border-green-200" 
+            : "bg-red-50 border border-red-200"
+        }`}>
+          <p className={`body-default font-medium ${
+            message.includes("✅") ? "text-green-700" : "text-red-700"
+          }`}>
+            {message}
+          </p>
         </div>
       )}
 
@@ -167,22 +279,43 @@ export default function PlansClient({ plans, status, userId }) {
                 )}
                 
                 {plan.includes?.length > 0 && (
-                  <p className="body-small text-emerald-600">
-                    🎁 {plan.includes.join(", ")}
-                  </p>
+                  <div className="space-y-s4">
+                    {plan.includes.map((item, idx) => (
+                      <p key={idx} className="body-small text-emerald-600 flex items-center gap-s8">
+                        <span>✓</span>
+                        <span>{item}</span>
+                      </p>
+                    ))}
+                  </div>
                 )}
               </div>
 
               <button
                 onClick={() => handleBuy(plan)}
                 disabled={buying === plan.id}
-                className="w-full py-s16 bg-primary-main text-white rounded-r16 heading-h6 hover:bg-primary-light transition-colors disabled:opacity-60"
+                className="w-full py-s16 bg-primary-main text-white rounded-r16 heading-h6 hover:bg-primary-light transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {buying === plan.id ? "Activating..." : "Buy Now"}
+                {buying === plan.id ? (
+                  <span className="flex items-center justify-center gap-s8">
+                    <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                    </svg>
+                    Processing...
+                  </span>
+                ) : (
+                  `Pay ₹${(plan.price / 100).toFixed(0)}`
+                )}
               </button>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Payment Info */}
+      <div className="mt-s40 bg-blue-50 border border-blue-200 rounded-r16 p-s16">
+        <p className="body-small text-blue-900 text-center">
+          🔒 Secure payment powered by Razorpay
+        </p>
       </div>
     </div>
   );

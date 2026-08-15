@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
+import { Phone } from "lucide-react";
 
 // ─── Map Picker Component ─────────────────────────────────────────────────────
 function MapPicker({ initialCoords, onConfirm, onClose }) {
@@ -318,15 +319,6 @@ function MapPicker({ initialCoords, onConfirm, onClose }) {
           Drag the pin or tap the map to adjust delivery location
         </p>
 
-        {LOCATIONIQ_KEY && (
-          <p className="body-small text-secondary/40 text-right -mt-s4">
-            Search by{" "}
-            <a href="https://locationiq.com" target="_blank" rel="noopener" className="underline hover:text-[#8A5AB8]">
-              LocationIQ
-            </a>
-          </p>
-        )}
-
         <Button
           variant="tertiary"
           onClick={handleConfirm}
@@ -340,6 +332,24 @@ function MapPicker({ initialCoords, onConfirm, onClose }) {
   );
 }
 
+// ─── Input Field Component ────────────────────────────────────────────────────
+function InputField({ label, error, ...props }) {
+  return (
+    <div>
+      <label className="block body-small font-medium text-main mb-s6">
+        {label}
+      </label>
+      <input
+        {...props}
+        className={`w-full px-s16 py-s8 border rounded-r8 focus:outline-none transition-colors disabled:bg-gray-50 ${
+          error ? "border-red-500" : "border-[#E0D4E3] focus:border-[#8A5AB8]"
+        } ${props.disabled ? "opacity-50" : ""}`}
+      />
+      {error && <p className="text-red-500 body-small mt-s4">{error}</p>}
+    </div>
+  );
+}
+
 // ─── Main Product Purchase Modal ──────────────────────────────────────────────
 export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
   const { data: session, status } = useSession();
@@ -347,9 +357,13 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
   const overlayRef = useRef(null);
   
   const [formData, setFormData] = useState({
-    name: session?.user?.username || session?.user?.name || "",
-    phone: session?.user?.phone || session?.user?.phoneNumber || "",
-    email: session?.user?.email || "",
+    name: "",
+    phone: "",
+    email: "",
+    houseNo: "",
+    address: "",
+    landmark: "",
+    pinCode: "",
     quantity: 1,
     specialRequests: "",
   });
@@ -363,12 +377,59 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
   
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [needsPhone, setNeedsPhone] = useState(false);
+
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+    
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   // Body scroll lock
   useEffect(() => {
     document.body.style.overflow = showMap ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [showMap]);
+
+  // Auto-fetch user details from session-based API
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    fetch("/backend/user/profile", {
+      headers: {
+        'x-user-id': session.user.id,
+        'x-user-email': session.user.email || '',
+        'x-user-name': session.user.name || '',
+      }
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data) {
+          setFormData(prev => ({
+            ...prev,
+            name: data.name || "",
+            phone: data.phone || "",
+            email: data.email || "",
+            houseNo: data.houseNo || "",
+            address: data.address || "",
+            landmark: data.landmark || "",
+            pinCode: data.pinCode || "",
+          }));
+          
+          // Google user with no phone yet
+          if (!data.phone && data.provider === "GOOGLE") {
+            setNeedsPhone(true);
+          }
+        }
+      })
+      .catch(console.error);
+  }, [session]);
 
   if (!product) {
     return null;
@@ -432,6 +493,13 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
       if (!manualAddress.trim()) {
         newErrors.manualAddress = "Please enter your complete delivery address";
       }
+      if (!formData.houseNo.trim()) newErrors.houseNo = "House/Flat No. is required";
+      if (!formData.address.trim()) newErrors.address = "Address is required";
+      if (!formData.pinCode.trim()) {
+        newErrors.pinCode = "PIN Code is required";
+      } else if (!/^\d{6}$/.test(formData.pinCode)) {
+        newErrors.pinCode = "Invalid PIN Code";
+      }
     }
 
     if (!formData.quantity || parseInt(formData.quantity) < 1) {
@@ -448,56 +516,121 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      const firstErrorKey = Object.keys(validationErrors)[0];
-      const errorElement = document.querySelector(`[name="${firstErrorKey}"]`);
-      errorElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const purchaseData = {
+ // In ProductPurchaseModal.jsx
+const initiatePayment = async () => {
+  try {
+    // 1. Create Razorpay order
+    const orderRes = await fetch("/backend/create-product-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        'x-user-id': session.user.id,
+        'x-user-email': session.user.email || '',
+        'x-user-name': session.user.name || '',
+      },
+      body: JSON.stringify({
+        amount: totalPrice * 100, // in paise
+        currency: "INR",
         productId: product.id,
         productTitle: product.title,
-        quantity: parseInt(formData.quantity),
+        productImage: product.image,
+        quantity: formData.quantity,
         unitPrice: product.price,
-        totalPrice: product.price * parseInt(formData.quantity),
+      }),
+    });
+
+    const orderData = await orderRes.json();
+    if (!orderData.success) throw new Error(orderData.error);
+
+    // 2. Open Razorpay checkout
+    const razorpay = new window.Razorpay({
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      amount: orderData.order.amount,
+      currency: orderData.order.currency,
+      name: "Rantraa",
+      description: product.title,
+      order_id: orderData.order.id,
+      prefill: {
+        name: formData.name,
+        email: formData.email,
+        contact: `+91${formData.phone}`,
+      },
+      theme: { color: "#8A5AB8" },
+      handler: async (response) => {
+        await verifyPayment(response);
+      },
+    });
+
+    razorpay.open();
+  } catch (error) {
+    console.error("Payment error:", error);
+    alert("Failed to initiate payment");
+  }
+};
+
+const verifyPayment = async (response) => {
+  try {
+    const res = await fetch("/backend/verify-product-payment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        'x-user-id': session.user.id,
+        'x-user-email': session.user.email || '',
+        'x-user-name': session.user.name || '',
+      },
+      body: JSON.stringify({
+        ...response,
+        userDetails: formData,
         deliveryLocation: locationMethod === "map" ? {
           type: "coordinates",
           latitude: mapCoords.lat,
           longitude: mapCoords.lng,
-          detectedAddress: mapAddress,
           fullAddress: mapAddress,
         } : {
           type: "manual",
-          latitude: null,
-          longitude: null,
-          detectedAddress: null,
-          fullAddress: manualAddress.trim(),
+          fullAddress: manualAddress,
+        },
+        productDetails: {
+          productId: product.id,
+          productTitle: product.title,
+          productImage: product.image,
+          quantity: formData.quantity,
+          unitPrice: product.price,
+          totalPrice: totalPrice,
+        },
+      }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      onSuccess({
+        orderId: data.order.orderId,
+        productTitle: product.title,
+        productImage: product.image,
+        quantity: formData.quantity,
+        unitPrice: product.price,
+        totalPrice: totalPrice,
+        deliveryLocation: locationMethod === "map" ? {
+          type: "coordinates",
+          latitude: mapCoords.lat,
+          longitude: mapCoords.lng,
+          fullAddress: mapAddress,
+        } : {
+          type: "manual",
+          fullAddress: manualAddress,
         },
         userDetails: formData,
         orderDate: new Date().toISOString(),
-      };
-
-      console.log("🛒 Product purchase submitted:", purchaseData);
-      onSuccess(purchaseData);
-      
-    } catch (error) {
-      console.error("Purchase error:", error);
-      setErrors({ submit: "Failed to complete purchase. Please try again." });
-    } finally {
-      setIsSubmitting(false);
+        estimatedDelivery: data.order.estimatedDelivery,
+      });
+    } else {
+      alert(data.message || "Payment verification failed");
     }
-  };
+  } catch (error) {
+    console.error("Verification error:", error);
+    alert("Payment verification failed");
+  }
+};
 
   const handleOverlayClick = (e) => {
     if (e.target === overlayRef.current && !isSubmitting) {
@@ -564,7 +697,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-s16 space-y-s16">
+          <form onSubmit={(e) => { e.preventDefault(); initiatePayment(); }} className="p-s16 space-y-s16">
             
             {errors.submit && (
               <div className="bg-red-50 border border-red-200 rounded-r12 p-s16 text-red-700 body-small">
@@ -577,60 +710,50 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
               <h3 className="heading-h6 text-main">Personal Details</h3>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-s16">
-                <div>
-                  <label className="block body-small font-medium text-main mb-s6">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
-                    disabled={isSubmitting}
-                    className={`w-full px-s16 py-s8 border rounded-r8 focus:outline-none transition-colors disabled:bg-gray-50 ${
-                      errors.name ? "border-red-500" : "border-[#E0D4E3] focus:border-[#8A5AB8]"
-                    }`}
-                    placeholder="Enter your full name"
-                  />
-                  {errors.name && <p className="text-red-500 body-small mt-s4">{errors.name}</p>}
-                </div>
+                <InputField
+                  label="Full Name *"
+                  name="name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  disabled={isSubmitting}
+                  placeholder="Enter your full name"
+                  error={errors.name}
+                />
 
                 <div>
                   <label className="block body-small font-medium text-main mb-s6">
                     Phone Number *
                   </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                    disabled={isSubmitting}
-                    className={`w-full px-s16 py-s8 border rounded-r8 focus:outline-none transition-colors disabled:bg-gray-50 ${
-                      errors.phone ? "border-red-500" : "border-[#E0D4E3] focus:border-[#8A5AB8]"
-                    }`}
-                    placeholder="+91 98765 43210"
-                  />
+                  <div className={`flex items-center gap-2 rounded-r8 border px-s16 py-s8 bg-white transition ${errors.phone ? "border-red-500" : "border-[#E0D4E3]"}`}>
+                    <Phone size={16} className="text-secondary shrink-0" />
+                    <span className="body-small text-secondary">+91</span>
+                    <input
+                      name="phone"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange("phone", e.target.value.replace(/\D/g, ""))}
+                      placeholder="10-digit number"
+                      maxLength={10}
+                      disabled={isSubmitting || (!!formData.phone && !needsPhone)}
+                      className="bg-transparent outline-none flex-1 body-small"
+                    />
+                  </div>
+                  {needsPhone && (
+                    <p className="body-small text-primary-main mt-s4">Please add your phone number to proceed</p>
+                  )}
                   {errors.phone && <p className="text-red-500 body-small mt-s4">{errors.phone}</p>}
                 </div>
               </div>
 
-              <div>
-                <label className="block body-small font-medium text-main mb-s6">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  disabled={isSubmitting}
-                  className={`w-full px-s16 py-s8 border rounded-r8 focus:outline-none transition-colors disabled:bg-gray-50 ${
-                    errors.email ? "border-red-500" : "border-[#E0D4E3] focus:border-[#8A5AB8]"
-                  }`}
-                  placeholder="your@email.com"
-                />
-                {errors.email && <p className="text-red-500 body-small mt-s4">{errors.email}</p>}
-              </div>
+              <InputField
+                label="Email Address *"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                disabled={isSubmitting}
+                placeholder="your@email.com"
+                error={errors.email}
+              />
             </div>
 
             {/* Order Details */}
@@ -694,7 +817,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                     type="button"
                     onClick={() => {
                       setLocationMethod("map");
-                      setErrors(prev => ({ ...prev, manualAddress: null }));
+                      setErrors(prev => ({ ...prev, manualAddress: null, houseNo: null, address: null, pinCode: null }));
                     }}
                     disabled={isSubmitting}
                     className={`flex-1 py-s8 px-s16 rounded-r12 body-small font-medium transition-all disabled:opacity-50 ${
@@ -775,30 +898,67 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
 
                 {/* Manual address method */}
                 {locationMethod === "manual" && (
-                  <div>
-                    <textarea
-                      name="manualAddress"
-                      value={manualAddress}
-                      onChange={(e) => {
-                        setManualAddress(e.target.value);
-                        setErrors(prev => ({ ...prev, manualAddress: null }));
-                      }}
+                  <div className="space-y-s16">
+                    <div className="grid grid-cols-2 gap-s16">
+                      <InputField
+                        label="House/Flat No. *"
+                        name="houseNo"
+                        value={formData.houseNo}
+                        onChange={(e) => handleInputChange("houseNo", e.target.value)}
+                        disabled={isSubmitting}
+                        placeholder="Building, House no."
+                        error={errors.houseNo}
+                      />
+                      <InputField
+                        label="PIN Code *"
+                        name="pinCode"
+                        value={formData.pinCode}
+                        onChange={(e) => handleInputChange("pinCode", e.target.value.replace(/\D/g, ""))}
+                        disabled={isSubmitting}
+                        placeholder="6-digit PIN"
+                        maxLength={6}
+                        error={errors.pinCode}
+                      />
+                    </div>
+                    
+                    <InputField
+                      label="Address (Area, Street) *"
+                      name="address"
+                      value={formData.address}
+                      onChange={(e) => handleInputChange("address", e.target.value)}
                       disabled={isSubmitting}
-                      rows={4}
-                      className={`w-full rounded-r16 border ${errors.manualAddress ? 'border-red-500' : 'border-[#E0D4E3]'} px-s16 py-s8 body-default text-main placeholder:text-secondary/40 focus:outline-none focus:border-[#8A5AB8] transition-colors resize-none disabled:bg-gray-50`}
-                      placeholder="House/Flat No., Street, Area, City, State, Pincode"
+                      placeholder="Area, Street, Sector, Village"
+                      error={errors.address}
                     />
-                    {errors.manualAddress && <p className="text-red-500 body-small mt-s4">{errors.manualAddress}</p>}
-                    <p className="body-small text-secondary/60 mt-s4">
-                      Delivery partner will contact you if needed
-                    </p>
-                  </div>
-                )}
+                    
+                    <InputField
+                      label="Landmark (Optional)"
+                      name="landmark"
+                      value={formData.landmark}
+                      onChange={(e) => handleInputChange("landmark", e.target.value)}
+                      disabled={isSubmitting}
+                      placeholder="Nearby landmark"
+                    />
 
-                {locationMethod === "map" && mapAddress && (
-                  <p className="body-small text-secondary/60 -mt-s8">
-                    GPS coordinates will be used for accurate delivery
-                  </p>
+                    <div>
+                      <label className="block body-small font-medium text-main mb-s6">
+                        Complete Address *
+                      </label>
+                      <textarea
+                        name="manualAddress"
+                        value={manualAddress}
+                        onChange={(e) => {
+                          setManualAddress(e.target.value);
+                          setErrors(prev => ({ ...prev, manualAddress: null }));
+                        }}
+                        disabled={isSubmitting}
+                        rows={3}
+                        className={`w-full rounded-r16 border ${errors.manualAddress ? 'border-red-500' : 'border-[#E0D4E3]'} px-s16 py-s8 body-default text-main placeholder:text-secondary/40 focus:outline-none focus:border-[#8A5AB8] transition-colors resize-none disabled:bg-gray-50`}
+                        placeholder="Full delivery address with city, state"
+                      />
+                      {errors.manualAddress && <p className="text-red-500 body-small mt-s4">{errors.manualAddress}</p>}
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -873,7 +1033,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                     Processing...
                   </span>
                 ) : (
-                  `Complete Purchase - ₹${totalPrice.toLocaleString()}`
+                  `Pay ₹${totalPrice.toLocaleString()}`
                 )}
               </Button>
             </div>
