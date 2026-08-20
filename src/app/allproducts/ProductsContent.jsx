@@ -1,106 +1,84 @@
+// src/app/allproducts/ProductsContent.jsx  — replace your existing file
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 import ProductsHeader from "@/components/ProductsHeader";
-import HeroSection from "@/components/products/HeroSection";
+import HeroSection    from "@/components/products/HeroSection";
 import ProductsSection from "@/components/products/ProductsSection";
 
-import { ALL_PRODUCTS, PRODUCT_CATEGORIES } from "@/data/products";
+import { useProducts, useProductCategories } from "@/hooks/useProducts";
 
 export default function ProductsContent() {
-  const router = useRouter();
+  const router       = useRouter();
   const searchParams = useSearchParams();
 
-  const [filteredProducts, setFilteredProducts] = useState(ALL_PRODUCTS);
   const [showFilters, setShowFilters] = useState(false);
 
   const currentCategory = searchParams.get("category") || "All";
-  const currentSearch = searchParams.get("search") || "";
-  const currentSort = searchParams.get("sort") || "popularity";
+  const currentSearch   = searchParams.get("search")   || "";
+  const currentSort     = searchParams.get("sort")     || "popularity";
+  const currentTags     = searchParams.get("tags")     || "";
+  const currentPage     = parseInt(searchParams.get("page") || "1");
 
-  useEffect(() => {
-    let filtered = [...ALL_PRODUCTS];
+  // ── Fetch from DB ─────────────────────────────────────────────────
+  const {
+    data,
+    isLoading,
+    error,
+  } = useProducts({
+    category: currentCategory,
+    search:   currentSearch,
+    sort:     currentSort,
+    tags:     currentTags,
+    page:     currentPage,
+  });
 
-    if (currentCategory !== "All") {
-      filtered = filtered.filter(
-        (product) => product.category === currentCategory
-      );
-    }
+  const { data: categoriesData } = useProductCategories();
 
-    if (currentSearch) {
-      const searchLower = currentSearch.toLowerCase();
+  const products   = data?.products        || [];
+  const pagination = data?.pagination      || {};
+  const allTags    = data?.meta?.allTags   || [];
+  const categories = categoriesData?.categories?.map(c => c.name) || [
+    "All","Rudraksha","Gemstones","Bracelets","Idols","Spiritual Items"
+  ];
 
-      filtered = filtered.filter(
-        (product) =>
-          product.title.toLowerCase().includes(searchLower) ||
-          product.description.toLowerCase().includes(searchLower) ||
-          product.category.toLowerCase().includes(searchLower)
-      );
-    }
-
-    switch (currentSort) {
-      case "price-low":
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-
-      case "price-high":
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-
-      case "rating":
-        filtered.sort((a, b) => b.rating - a.rating);
-        break;
-
-      case "newest":
-        filtered.sort((a, b) => b.id - a.id);
-        break;
-
-      default:
-        filtered.sort((a, b) => b.reviews - a.reviews);
-    }
-
-    setFilteredProducts(filtered);
-  }, [currentCategory, currentSearch, currentSort]);
-
-  const handleCategoryChange = (category) => {
+  // ── Helpers ───────────────────────────────────────────────────────
+  function updateParam(key, value, resetPage = true) {
     const params = new URLSearchParams(searchParams.toString());
-
-    if (category === "All") {
-      params.delete("category");
+    if (!value || value === "All" || value === "popularity") {
+      params.delete(key);
     } else {
-      params.set("category", category);
+      params.set(key, value);
     }
-
+    if (resetPage) params.delete("page");
     router.push(`?${params.toString()}`);
+  }
+
+  const handleCategoryChange = (cat) => updateParam("category", cat);
+  const handleSortChange     = (s)   => updateParam("sort", s);
+  const handleTagToggle      = (tag) => {
+    const tagList = currentTags ? currentTags.split(",").filter(Boolean) : [];
+    const newTags = tagList.includes(tag)
+      ? tagList.filter(t => t !== tag)
+      : [...tagList, tag];
+    updateParam("tags", newTags.join(","));
   };
 
-  const handleSortChange = (sortValue) => {
-    const params = new URLSearchParams(searchParams.toString());
+  const clearAllFilters = () => router.push("/allproducts");
 
-    if (sortValue === "popularity") {
-      params.delete("sort");
-    } else {
-      params.set("sort", sortValue);
-    }
-
-    router.push(`?${params.toString()}`);
-  };
-
-  const clearAllFilters = () => {
-    router.push("/allproducts");
-    setShowFilters(false);
-  };
-
-  const hasActiveFilters =
-    currentCategory !== "All" || currentSearch;
+  const hasActiveFilters = currentCategory !== "All" || currentSearch || currentTags;
 
   return (
     <main className="min-h-screen mt-s104 max-w-7xl flex mx-auto flex-col gap-s32 pb-s40">
       <ProductsHeader
         title="All Products"
-        subtitle={`${filteredProducts.length} products available`}
+        subtitle={
+          isLoading
+            ? "Loading..."
+            : `${pagination.total || products.length} products available`
+        }
         showSubtitle
         searchPlaceholder="Search products..."
         searchValue={currentSearch}
@@ -109,19 +87,50 @@ export default function ProductsContent() {
         hasActiveFilters={hasActiveFilters}
         currentCategory={currentCategory}
         onCategoryChange={handleCategoryChange}
-        categories={PRODUCT_CATEGORIES}
+        categories={categories}
         currentSort={currentSort}
         onSortChange={handleSortChange}
         onClearAll={clearAllFilters}
+        // Tag filter props
+        allTags={allTags}
+        currentTags={currentTags ? currentTags.split(",") : []}
+        onTagToggle={handleTagToggle}
       />
 
       <HeroSection />
 
+      {/* Tag Filter Chips */}
+      {allTags.length > 0 && (
+        <div className="px-s16 flex flex-wrap gap-s8">
+          {allTags.map((tag) => {
+            const active = currentTags?.split(",").includes(tag);
+            return (
+              <button
+                key={tag}
+                onClick={() => handleTagToggle(tag)}
+                className={`px-s16 py-s6 rounded-full text-xs font-medium border transition-all ${
+                  active
+                    ? "bg-primary-main text-white border-primary-main"
+                    : "bg-white text-secondary border-[#E0D4E3] hover:border-primary-light"
+                }`}
+              >
+                #{tag}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <ProductsSection
-        products={filteredProducts}
+        products={products}
+        isLoading={isLoading}
+        error={error}
         currentCategory={currentCategory}
         currentSearch={currentSearch}
         onClearFilters={clearAllFilters}
+        pagination={pagination}
+        currentPage={currentPage}
+        onPageChange={(p) => updateParam("page", String(p), false)}
       />
     </main>
   );

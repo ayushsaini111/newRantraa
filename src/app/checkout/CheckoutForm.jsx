@@ -428,6 +428,7 @@ async function verifyPayment(response) {
                 <TimeSlotSelector
                   selectedSlot={selectedTimeSlot}
                   onSelectSlot={setSelectedTimeSlot}
+                  selectedDate={selectedDate}
                 />
                 {errors.timeSlot && (
                   <p className="text-red-main caption mt-2">{errors.timeSlot}</p>

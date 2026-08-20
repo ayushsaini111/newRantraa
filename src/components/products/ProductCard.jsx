@@ -32,7 +32,7 @@ function ProductCard({ product }) {
       {/* IMAGE */}
       <div className="relative h-[270px] bg-[#F6F1EB] overflow-hidden">
         <Image
-          src={product.image || "/Products/product-1.png"}
+          src={product.image }
           alt={product.title || "Product"}
           fill
           className="

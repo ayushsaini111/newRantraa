@@ -1,10 +1,12 @@
+// src/app/layout.js
 import { Lora, DM_Sans } from "next/font/google";
-import Script from "next/script"; // ← Import Script
+import Script from "next/script";
 import "./globals.css";
 
 import Navbar from "@/components/layout/Navbar";
 import MobileBottomBar from "@/components/layout/MobileBottomBar";
 import AuthProvider from "@/components/providers/SessionProvider";
+import QueryProvider from "@/components/providers/QueryProvider"; // ✅ Add this
 import AuthSync from "@/components/providers/AuthSync";
 import Footer from "@/components/footer/Footer";
 
@@ -39,17 +41,19 @@ export default function RootLayout({ children }) {
         />
 
         <AuthProvider>
-          <div className="min-h-screen bg-background">
-            <AuthSync />
-            <Navbar />
+          <QueryProvider> {/* ✅ Add QueryProvider inside AuthProvider */}
+            <div className="min-h-screen bg-background">
+              <AuthSync />
+              <Navbar />
 
-            <main className="pb-20 lg:pb-0">
-              {children}
-            </main>
-            <Footer/>
+              <main className="pb-20 lg:pb-0">
+                {children}
+              </main>
+              <Footer />
 
-            <MobileBottomBar />
-          </div>
+              <MobileBottomBar />
+            </div>
+          </QueryProvider> {/* ✅ Close QueryProvider */}
         </AuthProvider>
       </body>
     </html>

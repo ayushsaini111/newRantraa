@@ -7,22 +7,19 @@ import { ArrowLeft, Star, Heart, Share2, ShoppingBag } from "lucide-react";
 import Button from "@/components/ui/Button";
 import ProductPurchaseModal from "@/components/products/ProductPurchaseModal";
 import ProductOrderConfirmation from "@/components/products/ProductOrderConfirmation";
-import { ALL_PRODUCTS } from "@/data/products";
+import { useProduct } from "@/hooks/useProducts"; // ✅ Use the hook
 
 export default function ProductDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const [product, setProduct] = useState(null);
+  
   const [selectedImage, setSelectedImage] = useState(0);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
 
-  useEffect(() => {
-    const productId = parseInt(params.id);
-    const foundProduct = ALL_PRODUCTS.find(p => p.id === productId);
-    setProduct(foundProduct);
-  }, [params.id]);
+  // ✅ Fetch product from database using the hook
+  const { data: product, isLoading, error } = useProduct(params.id);
 
   const handlePurchaseSuccess = (details) => {
     // Generate order ID
@@ -45,11 +42,27 @@ export default function ProductDetailPage() {
     setOrderDetails(null);
   };
 
-  if (!product) {
+  // ✅ Handle loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-[#8A5AB8] border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-secondary">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Handle error state
+  if (error || !product) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="heading-h3 text-main mb-s16">Product Not Found</h1>
+          <p className="body-default text-secondary mb-s24">
+            {error?.message || "The product you're looking for doesn't exist."}
+          </p>
           <Button onClick={() => router.back()}>Go Back</Button>
         </div>
       </div>
@@ -89,7 +102,7 @@ export default function ProductDetailPage() {
             <div className="space-y-s16">
               <div className="relative w-full aspect-square rounded-r24 overflow-hidden bg-[#F6F1EB]">
                 <Image
-                  src={product.images[selectedImage]}
+                  src={product.images?.[selectedImage] || product.image || "/Products/product-1.png"}
                   alt={product.title}
                   fill
                   className="object-cover"
@@ -101,7 +114,7 @@ export default function ProductDetailPage() {
                 )}
               </div>
               
-              {product.images.length > 1 && (
+              {product.images && product.images.length > 1 && (
                 <div className="flex gap-s12">
                   {product.images.map((img, idx) => (
                     <button
@@ -124,7 +137,9 @@ export default function ProductDetailPage() {
               {/* Title & Rating */}
               <div className="space-y-s12">
                 <h1 className="heading-h3 text-main">{product.title}</h1>
-                <p className="body-default text-secondary">{product.description}</p>
+                <p className="body-default text-secondary">
+                  {product.shortDescription || product.description}
+                </p>
                 
                 <div className="flex items-center gap-s16">
                   <div className="flex items-center gap-s4">
@@ -132,16 +147,16 @@ export default function ProductDetailPage() {
                       <Star
                         key={i}
                         size={16}
-                        fill={i < Math.floor(product.rating) ? "#F59E0B" : "none"}
+                        fill={i < Math.floor(product.rating || 0) ? "#F59E0B" : "none"}
                         stroke="#F59E0B"
                       />
                     ))}
                     <span className="body-small text-main font-medium ml-s4">
-                      {product.rating}
+                      {product.rating || 0}
                     </span>
                   </div>
                   <span className="body-small text-secondary">
-                    ({product.reviews} reviews)
+                    ({product.reviews || 0} reviews)
                   </span>
                 </div>
               </div>
@@ -159,33 +174,38 @@ export default function ProductDetailPage() {
               {/* Stock Status */}
               <div className="flex items-center gap-s8">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="body-small text-green-600 font-medium">In Stock</span>
+                <span className="body-small text-green-600 font-medium">
+                  {product.inStock ? "In Stock" : "Out of Stock"}
+                </span>
               </div>
 
               {/* Benefits */}
-              <div className="space-y-s12">
-                <h3 className="heading-h6 text-main">Key Benefits</h3>
-                <div className="space-y-s8">
-                  {product.benefits.map((benefit, idx) => (
-                    <div key={idx} className="flex items-start gap-s8">
-                      <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="3">
-                          <path d="M20 6L9 17l-5-5"/>
-                        </svg>
+              {product.benefits && product.benefits.length > 0 && (
+                <div className="space-y-s12">
+                  <h3 className="heading-h6 text-main">Key Benefits</h3>
+                  <div className="space-y-s8">
+                    {product.benefits.map((benefit, idx) => (
+                      <div key={idx} className="flex items-start gap-s8">
+                        <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="3">
+                            <path d="M20 6L9 17l-5-5"/>
+                          </svg>
+                        </div>
+                        <span className="body-default text-secondary">{benefit}</span>
                       </div>
-                      <span className="body-default text-secondary">{benefit}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* CTA */}
               <Button
                 onClick={() => setShowPurchaseModal(true)}
+                disabled={!product.inStock}
                 className="w-full !py-s16 flex items-center justify-center gap-s8"
               >
                 <ShoppingBag size={18} />
-                Buy Now
+                {product.inStock ? "Buy Now" : "Out of Stock"}
               </Button>
             </div>
           </div>
@@ -197,22 +217,26 @@ export default function ProductDetailPage() {
             <div className="space-y-s16">
               <h2 className="heading-h4 text-main">About This Product</h2>
               <p className="body-default text-secondary leading-relaxed">
-                {product.longDescription}
+                {product.longDescription || product.description || "No detailed description available."}
               </p>
             </div>
 
             {/* Specifications */}
-            <div className="space-y-s16">
-              <h3 className="heading-h5 text-main">Specifications</h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-s16">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <div key={key} className="flex justify-between border-b border-[#E0D4E3] pb-s8">
-                    <span className="body-default text-secondary capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                    <span className="body-default text-main font-medium">{value}</span>
-                  </div>
-                ))}
+            {product.specifications && Object.keys(product.specifications).length > 0 && (
+              <div className="space-y-s16">
+                <h3 className="heading-h5 text-main">Specifications</h3>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-s16">
+                  {Object.entries(product.specifications).map(([key, value]) => (
+                    <div key={key} className="flex justify-between border-b border-[#E0D4E3] pb-s8">
+                      <span className="body-default text-secondary capitalize">
+                        {key.replace(/([A-Z])/g, ' $1')}
+                      </span>
+                      <span className="body-default text-main font-medium">{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Reviews */}
             {product.testimonials && product.testimonials.length > 0 && (
@@ -227,13 +251,15 @@ export default function ProductDetailPage() {
                           <p className="body-small text-secondary">{review.location}</p>
                         </div>
                         <div className="flex items-center gap-1">
-                          {[...Array(review.rating)].map((_, i) => (
+                          {[...Array(review.rating || 5)].map((_, i) => (
                             <Star key={i} size={14} fill="#F59E0B" stroke="#F59E0B" />
                           ))}
                         </div>
                       </div>
                       <p className="body-default text-secondary leading-relaxed">{review.text}</p>
-                      <p className="body-small text-secondary/50 mt-s8">{review.date}</p>
+                      <p className="body-small text-secondary/50 mt-s8">
+                        {new Date(review.date).toLocaleDateString()}
+                      </p>
                     </div>
                   ))}
                 </div>

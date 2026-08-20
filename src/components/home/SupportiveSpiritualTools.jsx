@@ -1,18 +1,48 @@
+// src/components/home/SupportiveSpiritualTools.jsx
 "use client";
 
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { ALL_PRODUCTS } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import Button from "@/components/ui/Button";
 import ProductCard from "@/components/products/ProductCard";
+
+// ─── Skeleton Card for Loading State ──────────────────────────────
+function ProductCardSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-r24 bg-white border border-[#E8DED5] animate-pulse">
+      {/* Image skeleton */}
+      <div className="h-[270px] bg-[#F6F1EB]" />
+
+      {/* Content skeleton */}
+      <div className="p-s16 flex flex-col gap-s8">
+        <div className="h-4 bg-[#F6F1EB] rounded w-3/4" />
+        <div className="h-3 bg-[#F6F1EB] rounded w-1/2" />
+        <div className="h-3 bg-[#F6F1EB] rounded w-1/3" />
+
+        <div className="flex items-center justify-between mt-s8">
+          <div className="h-4 bg-[#F6F1EB] rounded w-16" />
+          <div className="h-9 bg-[#F6F1EB] rounded-r16 w-16" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function SupportiveSpiritualTools() {
   const router = useRouter();
   const sliderRef = useRef(null);
 
-  const products = ALL_PRODUCTS.slice(0, 10);
+  // ── Fetch products from DB ─────────────────────────────────────
+  // Fetch popular products, limit to 10 for the slider
+  const { data, isLoading, error } = useProducts({
+    sort: "popularity",
+    limit: 10,
+  });
+
+  const products = data?.products || [];
 
   const scroll = (direction) => {
     if (!sliderRef.current) return;
@@ -22,6 +52,11 @@ export default function SupportiveSpiritualTools() {
       behavior: "smooth",
     });
   };
+
+  // Don't render section at all if error or no products after loading
+  if (!isLoading && (error || products.length === 0)) {
+    return null;
+  }
 
   return (
     <section className="w-full bg-background py-s80 lg:py-s104">
@@ -36,7 +71,7 @@ export default function SupportiveSpiritualTools() {
             onClick={() => router.push("/allproducts")}
             className="shrink-0"
           >
-            Pre-Book Pooja
+            view all
           </Button>
         </div>
       </div>
@@ -57,14 +92,25 @@ export default function SupportiveSpiritualTools() {
             lg:pr-s32
           "
         >
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="w-[230px] shrink-0 sm:w-[245px] xl:w-[300px]"
-            >
-              <ProductCard product={product} />
-            </div>
-          ))}
+          {isLoading
+            ? // ── Loading skeletons ──────────────────────────────
+              [...Array(5)].map((_, i) => (
+                <div
+                  key={`skeleton-${i}`}
+                  className="w-[230px] shrink-0 sm:w-[245px] xl:w-[300px]"
+                >
+                  <ProductCardSkeleton />
+                </div>
+              ))
+            : // ── Real products from DB ──────────────────────────
+              products.map((product) => (
+                <div
+                  key={product.id}
+                  className="w-[230px] shrink-0 sm:w-[245px] xl:w-[300px]"
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
         </div>
       </div>
 
@@ -74,6 +120,7 @@ export default function SupportiveSpiritualTools() {
           type="button"
           onClick={() => scroll("left")}
           aria-label="Previous products"
+          disabled={isLoading}
           className="
             flex
             h-10
@@ -86,6 +133,7 @@ export default function SupportiveSpiritualTools() {
             transition
             hover:scale-105
             hover:opacity-90
+            disabled:opacity-40
           "
         >
           <ChevronLeft size={20} />
@@ -95,6 +143,7 @@ export default function SupportiveSpiritualTools() {
           type="button"
           onClick={() => scroll("right")}
           aria-label="Next products"
+          disabled={isLoading}
           className="
             flex
             h-10
@@ -107,6 +156,7 @@ export default function SupportiveSpiritualTools() {
             transition
             hover:scale-105
             hover:opacity-90
+            disabled:opacity-40
           "
         >
           <ChevronRight size={20} />
