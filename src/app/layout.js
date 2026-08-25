@@ -46,7 +46,7 @@ export default function RootLayout({ children }) {
               <AuthSync />
               <Navbar />
 
-              <main className="pb-20 lg:pb-0">
+              <main className="">
                 {children}
               </main>
               <Footer />

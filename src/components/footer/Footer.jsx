@@ -43,7 +43,7 @@ const FOOTER_COLUMNS = [
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-primary-main">
+    <footer className="w-full pb-20 sm:pb-0 bg-primary-main">
       <div className="mx-auto max-w-7xl px-s16 pb-s24 pt-s80 lg:px-s32 lg:pt-s104">
 
         {/* Main Footer */}

@@ -1,4 +1,4 @@
-// src/components/poojas/PoojasSection.js  (no more "use client" — pure Server Component)
+// src/components/poojas/PoojasSection.js
 import OnlineSection from "./OnlineSection";
 import OnsiteSection from "./OnsiteSection";
 
@@ -22,21 +22,21 @@ export default function PoojasSection({ onlinePoojas, onsitePoojas }) {
   };
 
   return (
-    <section className="py-s104">
-      <div className="flex flex-col items-center text-center gap-3 sm:gap-s16 max-w-3xl mx-auto px-4">
+    <section className="py-s48 sm:py-s64 lg:py-s104">
+      <div className="flex flex-col items-center text-center gap-s16 sm:gap-s24 max-w-3xl mx-auto px-s16 sm:px-s24">
         <span className="caption uppercase tracking-[3px] text-primary-main font-semibold">
           Sacred Rituals
         </span>
-        <h2 className="heading-h1 text-main">Popular Poojas</h2>
-        <p className="body-large text-secondary">
+        <h2 className="heading-h3 sm:heading-h2 lg:heading-h1 text-main">Popular Poojas</h2>
+        <p className="body-small sm:body-default lg:body-large text-secondary">
           Discover the most loved Vedic rituals performed by experienced Pandit Ji.
           Choose between Online participation from anywhere or hassle-free On-site
           pooja at your home.
         </p>
       </div>
 
-      <div className="mx-auto pl-4 lg:pl-s0">
-        <div className="mt-12 sm:mt-16 lg:mt-s104 flex flex-col gap-16 sm:gap-20 lg:gap-s104">
+      <div className="mx-auto">
+        <div className="mt-s48 sm:mt-s64 lg:mt-s104 flex flex-col gap-s48 sm:gap-s64 lg:gap-s104">
           <div className="lg:pl-s160">
             <OnlineSection data={onlineData} />
           </div>

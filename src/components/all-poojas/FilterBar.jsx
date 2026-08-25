@@ -86,21 +86,18 @@ export default function FilterBar({
   return (
     <div
       className="
-        sticky
-        top-0
-        z-30
-        bg-background/90
-        px-s16
-        py-s24
-        backdrop-blur-xl
+       
+    
+        px-s6
+       
       "
     >
       {/* Header */}
-      <div className="flex flex-col gap-s16 p-s16 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex  gap-s6  items-center justify-between">
         <div>
-          <h3 className="heading-h5">
+          {/* <h3 className="heading-h5">
             Showing {total} of {totalData} Poojas
-          </h3>
+          </h3> */}
 
           <p className="caption mt-1 text-secondary">
             {activeFilters.length} filter
@@ -114,15 +111,21 @@ export default function FilterBar({
             const active = mode === item;
 
             return (
-              <Button
+              <button
                 key={item}
                 type="button"
-                variant={active ? "primary" : "outline"}
                 onClick={() => setMode(item)}
-                className="!rounded-full"
+                className={`
+    px-s16 py-s8 rounded-r40
+    body-small font-medium transition-all
+    ${active
+                    ? "bg-primary-main text-background hover:bg-primary-light"
+                    : "bg-background text-main border border-secondary-dark hover:bg-primary-main/10 hover:border-primary-main/20"
+                  }
+  `}
               >
                 {item}
-              </Button>
+              </button>
             );
           })}
         </div>
@@ -131,7 +134,7 @@ export default function FilterBar({
       {/* Horizontal Remedy Filters */}
       <div
         className="
-          mt-s24
+          mt-s8
           overflow-x-auto
           overflow-y-hidden
           hide-scrollbar
@@ -140,14 +143,20 @@ export default function FilterBar({
       >
         <div className="flex min-w-max gap-s8 pr-s24">
           <div ref={(el) => (filterRefs.current.All = el)}>
-            <Button
-              type="button"
-              variant={filter === "All" ? "primary" : "outline"}
+            <button
+
               onClick={() => setFilter("All")}
-              className="!rounded-full whitespace-nowrap"
+              className={`
+    px-s16 py-s8 rounded-r40
+    body-small font-medium transition-all
+    ${filter === "All"
+                  ? "bg-primary-main text-background hover:bg-primary-light"
+                  : "bg-background text-main border border-secondary-dark hover:bg-primary-main/10 hover:border-primary-main/20"
+                }
+  `}
             >
               All
-            </Button>
+            </button>
           </div>
 
           {REMEDIES.map((item) => {
@@ -161,14 +170,20 @@ export default function FilterBar({
                 }}
                 className="shrink-0"
               >
-                <Button
-                  type="button"
-                  variant={active ? "primary" : "outline"}
+                <button
+
                   onClick={() => setFilter(item.value)}
-                  className="!rounded-full whitespace-nowrap"
+                  className={`
+    px-s16 py-s8 rounded-r40
+    body-small font-medium transition-all
+    ${active
+                      ? "bg-primary-main text-background hover:bg-primary-light"
+                      : "bg-background text-main border border-secondary-dark hover:bg-primary-main/10 hover:border-primary-main/20"
+                    }
+  `}
                 >
                   {item.label}
-                </Button>
+                </button>
               </div>
             );
           })}
@@ -177,7 +192,7 @@ export default function FilterBar({
 
       {/* Active Filters */}
       {activeFilters.length > 0 && (
-        <div className="mt-s16 flex flex-wrap gap-s8">
+        <div className="mt-s8 flex flex-wrap gap-s8">
           {activeFilters.map((item) => (
             <button
               key={item.key}

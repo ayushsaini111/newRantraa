@@ -72,7 +72,7 @@ function FaqItem({ faq, isOpen, onToggle }) {
           w-full
           items-center
           justify-between
-          gap-s24
+          gap-s16 sm:gap-s24
           px-s24
           py-s16
           text-left
@@ -84,7 +84,7 @@ function FaqItem({ faq, isOpen, onToggle }) {
       >
         <span
           className={`
-            body-large
+            body-default
             font-medium
             leading-relaxed
             transition-colors
@@ -108,7 +108,7 @@ function FaqItem({ faq, isOpen, onToggle }) {
             items-center
             justify-center
             rounded-full
-            bg-black
+            bg-primary-main
             text-white
             transition-transform
             duration-300
@@ -144,7 +144,7 @@ function FaqItem({ faq, isOpen, onToggle }) {
           <div className="px-s24 pb-s24 lg:pr-20">
             <div className="h-px w-full bg-black/5" />
 
-            <p className="body-default pt-s16 leading-7 text-secondary">
+            <p className="body-small pt-s16 leading-7 text-secondary">
               {faq.answer}
             </p>
           </div>

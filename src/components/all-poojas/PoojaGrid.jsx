@@ -52,12 +52,12 @@ export default function PoojaGrid({ poojas }) {
   }
 
   return (
-    <section className="py-s48">
+    <section className="py-s48 flex justify-center">
       <div
         className="
           grid
           gap-s32
-          grid-cols-1
+          grid-cols-1 
           sm:grid-cols-2
           lg:grid-cols-3
           xl:grid-cols-4

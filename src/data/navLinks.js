@@ -48,7 +48,7 @@ export const MOBILE_NAV = [
   },
   {
     title: "Astrology",
-    href: "/orders",
+    href: "/Astrology",
     icon: Package,
     protected: true,
   },

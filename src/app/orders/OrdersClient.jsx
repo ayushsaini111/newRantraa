@@ -411,7 +411,7 @@ export default function OrdersClient({
   }), []);
 
   return (
-    <div className="min-h-screen mt-s80 sm:mt-s84 bg-secondary-skin/30">
+    <div className="min-h-screen mt-s104 sm:mt-s84 bg-secondary-skin/30">
       {/* Header */}
       <div className="bg-background border-b border-secondary-dark sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-s16 sm:px-s24 py-s16">

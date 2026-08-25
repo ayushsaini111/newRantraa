@@ -43,7 +43,7 @@ export default async function Page() {
   };
 
   return (
-    <div className=" space-y-s80">
+    <div className=" sm:space-y-s80">
       <Hero />
       <CommunityOfferSection />
       <PanditSection />

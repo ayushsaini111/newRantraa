@@ -3,7 +3,7 @@
 import Image from "next/image";
 
 export default function FullImageSection({
-  src="/om.png",
+  src="/om.PNG",
   alt = "",
 }) {
   return (

@@ -120,37 +120,37 @@ export default function UpcomingFestivals() {
 
   if (!featuredFestival) {
     return (
-      <section className="w-full bg-gradient-to-b from-primary-main/5 to-background py-16 px-6 lg:px-12">
+      <section className="w-full bg-gradient-to-b from-primary-main/5 to-background py-s32 sm:py-s48 lg:py-s64 px-s16 sm:px-s24 lg:px-s48">
         <div className="mx-auto max-w-7xl">
-          <h2 className="heading-h2 text-main mb-4">Upcoming Festivals</h2>
-          <p className="text-secondary">No festivals scheduled for {currentMonth}</p>
+          <h2 className="heading-h3 sm:heading-h2 text-main mb-s16 sm:mb-s24">Upcoming Festivals</h2>
+          <p className="body-small sm:body-default text-secondary">No festivals scheduled for {currentMonth}</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="w-full bg-background py-16 px-6 lg:px-12">
+    <section className="w-full bg-background py-s32 sm:py-s48 lg:py-s64 px-s16 sm:px-s24 lg:px-s48">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-12 space-y-s16">
-          <h2 className="heading-h2 text-main">Upcoming Festivals</h2>
-          <p className="text-secondary text-lg max-w-2xl">
+        <div className="mb-s32 sm:mb-s48 space-y-s16">
+          <h2 className="heading-h3 sm:heading-h2 text-main">Upcoming Festivals</h2>
+          <p className="body-small sm:body-default lg:body-large text-secondary max-w-2xl">
             Book auspicious poojas for upcoming Hindu festivals and receive divine blessings at the right muhurat
           </p>
         </div>
 
         {/* Featured Festival Card */}
-        <div className="bg-background rounded-3xl overflow-hidden mb-12 border border-primary-main/10 shadow-sm">
-          <div className="bg-gradient-to-r from-primary-main to-primary-light p-8 text-background">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div>
-                <h3 className="text-3xl font-bold mb-2">
+        <div className="bg-background rounded-r24 sm:rounded-r32 overflow-hidden mb-s32 sm:mb-s48 border border-primary-main/10 shadow-sm">
+          <div className="bg-gradient-to-r from-primary-main to-primary-light p-s24 sm:p-s32 lg:p-s40 text-background">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-s16">
+              <div className="w-full sm:w-auto">
+                <h3 className="heading-h4 sm:heading-h3 mb-s8">
                   {featuredFestival.festivalName}
                 </h3>
-                <div className="flex items-center gap-2 text-background/80">
-                  <Calendar className="w-4 h-4" />
-                  <span className="text-sm">
+                <div className="flex items-center gap-s8 text-background/80">
+                  <Calendar className="w-s16 h-s16 shrink-0" />
+                  <span className="caption sm:body-small">
                     {new Date(featuredFestival.startDate).toLocaleDateString("en-IN", {
                       day: "numeric",
                       month: "long",
@@ -162,22 +162,24 @@ export default function UpcomingFestivals() {
               <Button
                 onClick={() => handlePreBook(featuredFestival)}
                 loading={bookingLoading}
+                className="w-full sm:w-auto"
+                size="sm"
               >
                 Pre-Book Pooja
               </Button>
             </div>
           </div>
 
-          <div className="p-8">
-            <div className="grid lg:grid-cols-2 gap-8">
+          <div className="p-s24 sm:p-s32 lg:p-s40">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-s24 sm:gap-s32">
               {/* Countdown Timer */}
-              <div className="bg-primary-main/5 rounded-2xl p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Clock className="w-5 h-5 text-primary-main" />
-                  <h4 className="font-semibold text-main">Time Remaining</h4>
+              <div className="bg-primary-main/5 rounded-r16 sm:rounded-r24 p-s16 sm:p-s24">
+                <div className="flex items-center gap-s8 mb-s16">
+                  <Clock className="w-s16 sm:w-s24 h-s16 sm:h-s24 text-primary-main shrink-0" />
+                  <h4 className="body-small sm:body-default font-semibold text-main">Time Remaining</h4>
                 </div>
                 
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-s8 sm:gap-s16">
                   <CountdownBox value={timeLeft.days} label="Days" />
                   <CountdownBox value={timeLeft.hours} label="Hours" />
                   <CountdownBox value={timeLeft.minutes} label="Mins" />
@@ -186,30 +188,30 @@ export default function UpcomingFestivals() {
               </div>
 
               {/* Festival Details */}
-              <div className="space-y-4">
-                <div className="bg-accent-main/10 border border-accent-main/20 rounded-xl p-4">
-                  <p className="text-xs font-semibold text-accent-main mb-1">
+              <div className="space-y-s16 sm:space-y-s24">
+                <div className="bg-accent-main/10 border border-accent-main/20 rounded-r8 sm:rounded-r16 p-s16 sm:p-s24">
+                  <p className="caption font-semibold text-accent-main mb-s6">
                     Auspicious Muhurat
                   </p>
-                  <p className="text-sm text-main/80">
+                  <p className="caption sm:body-small text-main/80">
                     {featuredFestival.muhurat}
                   </p>
                 </div>
 
                 <div>
-                  <h5 className="text-sm font-semibold text-main mb-2">
+                  <h5 className="caption sm:body-small font-semibold text-main mb-s8">
                     About the Festival
                   </h5>
-                  <p className="text-sm text-secondary leading-relaxed">
+                  <p className="caption sm:body-small text-secondary leading-relaxed">
                     {featuredFestival.importantDetails}
                   </p>
                 </div>
 
-                <div className="bg-primary-light/10 border border-primary-light/20 rounded-xl p-4">
-                  <p className="text-xs font-semibold text-primary-main mb-1">
+                <div className="bg-primary-light/10 border border-primary-light/20 rounded-r8 sm:rounded-r16 p-s16 sm:p-s24">
+                  <p className="caption font-semibold text-primary-main mb-s6">
                     Benefits of Pooja
                   </p>
-                  <p className="text-sm text-main/80 leading-relaxed">
+                  <p className="caption sm:body-small text-main/80 leading-relaxed">
                     {featuredFestival.laabhOfPooja}
                   </p>
                 </div>
@@ -220,17 +222,17 @@ export default function UpcomingFestivals() {
 
         {/* Suggestion Box */}
         {suggestion && (
-          <div className="bg-primary-main/5 border border-primary-main/20 rounded-2xl p-6 mb-12">
-            <p className="text-sm text-main mb-4">
+          <div className="bg-primary-main/5 border border-primary-main/20 rounded-r16 sm:rounded-r24 p-s16 sm:p-s24 mb-s32 sm:mb-s48">
+            <p className="caption sm:body-small text-main mb-s16 sm:mb-s24">
               <strong>{suggestion.festival}</strong>.{" "}
               Here are some related poojas you might be interested in:
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-s8 sm:gap-s16">
               {suggestion.poojas.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => router.push(`/poojas/${p.id}`)}
-                  className="bg-background border border-primary-main/20 rounded-lg px-4 py-2 text-sm text-primary-main hover:bg-primary-main/10 transition-colors font-medium"
+                  className="bg-background border border-primary-main/20 rounded-r8 px-s16 py-s8 sm:px-s24 sm:py-s8 caption sm:body-small text-primary-main hover:bg-primary-main/10 transition-colors font-medium"
                 >
                   {p.title}
                 </button>
@@ -246,11 +248,11 @@ export default function UpcomingFestivals() {
 
 function CountdownBox({ value, label }) {
   return (
-    <div className="bg-background rounded-xl shadow-md p-3 text-center border border-primary-main/10">
-      <div className="text-2xl font-bold text-primary-main mb-1">
+    <div className="bg-background rounded-r8 sm:rounded-r16 shadow-md p-s8 sm:p-s16 text-center border border-primary-main/10">
+      <div className="heading-h5 sm:heading-h4 font-bold text-primary-main mb-s6">
         {value}
       </div>
-      <div className="text-[10px] font-medium text-secondary uppercase">
+      <div className="text-[10px] sm:text-[11px] font-medium text-secondary uppercase leading-tight">
         {label}
       </div>
     </div>

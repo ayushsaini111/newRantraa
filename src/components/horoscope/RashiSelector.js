@@ -60,7 +60,7 @@ export default function RashiSelector({ selectedRashi, onSelect }) {
               }`}
             >
               {/* Emoji Icon */}
-              <div className="text-4xl mb-2">{rashi.emoji}</div>
+              {/* <div className="text-4xl mb-2">{rashi.emoji}</div> */}
 
               {/* Zodiac Symbol */}
               <div className={`text-2xl mb-1 ${isSelected ? 'text-background' : 'text-main'}`}>

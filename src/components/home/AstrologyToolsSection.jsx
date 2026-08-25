@@ -327,7 +327,7 @@ const HoroscopeMini = () => {
       </div>
 
       {/* Zodiac Grid */}
-      <div className="grid grid-cols-4 md:grid-cols-6 gap-2 p-4 border-b  border-secondary-dark">
+      <div className="grid grid-cols-4 md:grid-cols-6 gap-2 p-s8 sm:p-s16 border-b  border-secondary-dark">
         {rashis.map((rashi) => (
           <button
             key={rashi.key}
@@ -339,7 +339,7 @@ const HoroscopeMini = () => {
             }`}
           >
             <div className="text-xl md:text-2xl mb-1">{rashi.emoji}</div>
-            <div className={`caption font-medium ${
+            <div className={`text-[10px] font-medium ${
               selectedRashi?.key === rashi.key ? "text-background" : "text-main"
             }`}>
               {rashi.name.toUpperCase()}

@@ -321,7 +321,7 @@ export default function ProfileClient({ session: serverSession, initialProfile }
 
   return (
     <>
-      <div className="min-h-screen mt-s80 bg-background pb-s64">
+      <div className="min-h-screen mt-s104 bg-background pb-s64">
         {/* Header */}
         <div className="bg-secondary-main/20 border-b border-secondary-dark px-s16 sm:px-s24 py-s16 sm:py-s24 sticky top-0 z-10 backdrop-blur-lg">
           <div className="max-w-7xl mx-auto flex items-center gap-s16">

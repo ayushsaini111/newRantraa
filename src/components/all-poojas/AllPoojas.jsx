@@ -166,7 +166,7 @@ export default function AllPoojas() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-s16 lg:px-s32">
+    <div className="mx-auto max-w-7xl lg:px-s32">
 
       <SearchBar
         value={search}
@@ -174,7 +174,7 @@ export default function AllPoojas() {
         data={poojas}
       />
 
-      <div className="mt-s32">
+      <div className="mt-s16">
         <FilterBar
           mode={mode}
           setMode={setMode}

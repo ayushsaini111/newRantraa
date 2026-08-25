@@ -11,6 +11,7 @@ export default function PoojaCard({ data }) {
     <article
       className="
         w-[230px]
+        max-h-[400px] sm:max-h-[650px] 
         sm:w-[245px]
         xl:w-[300px]
         bg-gray-200

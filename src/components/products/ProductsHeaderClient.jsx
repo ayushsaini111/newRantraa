@@ -167,7 +167,7 @@ export default function ProductsHeaderClient({
               suggestions.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => router.push(`/products/${item.id}`)}
+                  onClick={() => router.push(`/allproducts/${item.id}`)}
                   className="w-full flex items-center gap-s16 p-s16 hover:bg-secondary-main/20 transition-colors text-left border-b border-secondary-dark last:border-0"
                 >
                   <div className="relative w-14 h-14 rounded-r8 overflow-hidden bg-secondary-main/20 shrink-0">
