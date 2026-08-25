@@ -40,7 +40,9 @@ export default function PoojasSection({ onlinePoojas, onsitePoojas }) {
           <div className="lg:pl-s160">
             <OnlineSection data={onlineData} />
           </div>
-          <OnsiteSection data={onsiteData} />
+         <div className="lg:pl-s160 xl:pl-0">
+           <OnsiteSection data={onsiteData} />
+         </div>
         </div>
       </div>
     </section>

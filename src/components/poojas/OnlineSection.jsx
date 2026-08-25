@@ -30,7 +30,7 @@ export default function OnlineSection({ data }) {
         <div className="  lg:col-span-9 overflow-hidden lg:pl-s40">
           <div
             ref={sliderRef}
-            className="flex gap-s16 rounded-r24 sm:gap-s24 lg:gap-s32 overflow-x-auto hide-scrollbar scroll-smooth snap-x snap-mandatory pl-s16 sm:pl-0 pr-s40 sm:pr-s64 lg:pr-s80"
+            className="flex gap-s16 rounded-l-r24 sm:gap-s24 lg:gap-s32 overflow-x-auto hide-scrollbar scroll-smooth snap-x snap-mandatory pl-s16 sm:pl-0 pr-s40 sm:pr-s64 lg:pr-s80"
           >
             {data.cards.map((card) => (
               <div key={card.id} className="snap-start pl-s16 sm:pl-s24 shrink-0 w-[220px] sm:w-[245px] xl:w-[280px]">
