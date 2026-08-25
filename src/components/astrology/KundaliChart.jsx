@@ -250,7 +250,7 @@ export default function KundaliChart({ kundali }) {
   return (
     <div className="space-y-6">
       {/* Personal details header */}
-      <section className="overflow-hidden rounded-xl bg-white shadow-lg">
+      <section className="overflow-hidden rounded-xl bg-white shadow-sm">
         <div className="bg-gradient-to-r from-orange-600 via-red-600 to-orange-700 p-6 text-white">
           <h2 className="text-2xl font-bold">ॐ Janam Kundali</h2>
           <p className="mt-1 text-orange-100">Birth chart of {personalDetails.name || "Unknown"}</p>

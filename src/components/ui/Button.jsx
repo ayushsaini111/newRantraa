@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
+import Link from "next/link";
 import { cn } from "@/utils/cn";
 
 const variants = {
@@ -37,23 +38,22 @@ const Button = forwardRef(
             disabled = false,
             leftIcon,
             rightIcon,
+            as = "button",
+            href,
             ...props
         },
         ref
     ) => {
-        return (
-            <button
-                ref={ref}
-                disabled={disabled || loading}
-                className={cn(
-                    "inline-flex items-center justify-center gap-2 rounded-r16 transition-all duration-300 cursor-pointer",
-                    "disabled:opacity-50 disabled:pointer-events-none",
-                    variants[variant],
-                    sizes[size],
-                    className
-                )}
-                {...props}
-            >
+        const classes = cn(
+            "inline-flex items-center justify-center gap-2 rounded-r16 transition-all duration-300 cursor-pointer",
+            "disabled:opacity-50 disabled:pointer-events-none",
+            variants[variant],
+            sizes[size],
+            className
+        );
+
+        const content = (
+            <>
                 {loading && (
                     <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
                 )}
@@ -63,6 +63,41 @@ const Button = forwardRef(
                 {children}
 
                 {!loading && rightIcon}
+            </>
+        );
+
+        /* ---------------- Render as Link ---------------- */
+
+        if (as === "link" && href) {
+            const isDisabled = disabled || loading;
+
+            return (
+                <Link
+                    ref={ref}
+                    href={href}
+                    aria-disabled={isDisabled}
+                    tabIndex={isDisabled ? -1 : undefined}
+                    className={cn(
+                        classes,
+                        isDisabled && "opacity-50 pointer-events-none"
+                    )}
+                    {...props}
+                >
+                    {content}
+                </Link>
+            );
+        }
+
+        /* ---------------- Render as Button ---------------- */
+
+        return (
+            <button
+                ref={ref}
+                disabled={disabled || loading}
+                className={classes}
+                {...props}
+            >
+                {content}
             </button>
         );
     }

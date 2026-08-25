@@ -16,12 +16,12 @@ import {
 } from "lucide-react";
 
 import Button from "@/components/ui/Button";
-import { DESKTOP_NAV ,RASHI_DATA} from "@/data/navLinks";
+import { DESKTOP_NAV, RASHI_DATA } from "@/data/navLinks";
 
 import useAuth from "@/hooks/useAuth";
 import useAuthStore from "@/store/authStore";
 
-const RASHIS =RASHI_DATA
+const RASHIS = RASHI_DATA;
 
 export default function Navbar() {
   const router = useRouter();
@@ -35,43 +35,44 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const profileRef = useRef(null);
-const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
 
-useEffect(() => {
-  let lastScrollY = window.scrollY;
-  let ticking = false;
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
 
-  const handleScroll = () => {
-    if (ticking) return;
+    const handleScroll = () => {
+      if (ticking) return;
 
-    window.requestAnimationFrame(() => {
-      const currentScrollY = window.scrollY;
+      window.requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
 
-      if (currentScrollY <= 0) {
-        setIsVisible(true);
-      } else if (currentScrollY > lastScrollY) {
-        // Scrolling down
-        setIsVisible(false);
-      } else {
-        // Scrolling up
-        setIsVisible(true);
-      }
+        if (currentScrollY <= 0) {
+          setIsVisible(true);
+        } else if (currentScrollY > lastScrollY) {
+          // Scrolling down
+          setIsVisible(false);
+        } else {
+          // Scrolling up
+          setIsVisible(true);
+        }
 
-      lastScrollY = currentScrollY;
-      ticking = false;
+        lastScrollY = currentScrollY;
+        ticking = false;
+      });
+
+      ticking = true;
+    };
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
     });
 
-    ticking = true;
-  };
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
-  window.addEventListener("scroll", handleScroll, {
-    passive: true,
-  });
-
-  return () => {
-    window.removeEventListener("scroll", handleScroll);
-  };
-}, []);
   /* ---------------- Outside Click ---------------- */
 
   useEffect(() => {
@@ -130,20 +131,20 @@ useEffect(() => {
 
   return (
     <>
-<header
-  className={`
-    fixed top-0 left-0 right-0 z-50
-    transition-transform duration-300 ease-out
-    ${
-      isVisible
-        ? "translate-y-0"
-        : "-translate-y-full"
-    }
-    bg-[#F8E6DA] backdrop-blur-sm
-  `}
->
-        {/* ================= MAIN NAVBAR ================= */}
+      {/* ================= MAIN NAVBAR (hides on scroll) ================= */}
 
+      <header
+        className={`
+          fixed top-0 left-0 right-0 z-50
+          transition-transform duration-300 ease-out
+          ${
+            isVisible
+              ? "translate-y-0"
+              : "-translate-y-full"
+          }
+          bg-primary-main 
+        `}
+      >
         <div className="mx-auto max-w-7xl">
           <div className="flex h-17 items-center justify-between px-s16 lg:px-s32">
 
@@ -164,8 +165,6 @@ useEffect(() => {
                   />
                 </div>
               </div>
-
-           
             </Link>
 
             {/* Desktop Navigation */}
@@ -187,8 +186,8 @@ useEffect(() => {
                       transition-all duration-300
                       ${
                         active
-                          ? "text-primary-main bg-white/50"
-                          : "text-main hover:text-primary-main hover:bg-primary-main/5"
+                          ? "text-secondary-dark bg-background/10"
+                          : "text-background hover:text-secondary-dark hover:bg-secondary-main/10"
                       }
                     `}
                   >
@@ -299,7 +298,7 @@ useEffect(() => {
                           onClick={() => setOpenMenu(false)}
                           className="flex items-center gap-s16 px-s16 py-s16 rounded-r16 transition-colors hover:bg-secondary-main group"
                         >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-r12 bg-primary-main/10 group-hover:bg-primary-main/20">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-r8 bg-primary-main/10 group-hover:bg-primary-main/20">
                             <User
                               size={18}
                               className="text-primary-main"
@@ -322,7 +321,7 @@ useEffect(() => {
                           onClick={() => setOpenMenu(false)}
                           className="flex items-center gap-s16 px-s16 py-s16 rounded-r16 transition-colors hover:bg-secondary-main group"
                         >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-r12 bg-primary-main/10">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-r8 bg-primary-main/10">
                             <Sparkles
                               size={18}
                               className="text-primary-main"
@@ -345,7 +344,7 @@ useEffect(() => {
                           onClick={() => setOpenMenu(false)}
                           className="flex items-center gap-s16 px-s16 py-s16 rounded-r16 transition-colors hover:bg-secondary-main group"
                         >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-r12 bg-primary-main/10">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-r8 bg-primary-main/10">
                             <Package
                               size={18}
                               className="text-primary-main"
@@ -370,7 +369,7 @@ useEffect(() => {
                           onClick={handleLogout}
                           className="flex w-full items-center gap-s16 px-s16 py-s16 rounded-r16 text-red-main transition-colors hover:bg-red-main/5"
                         >
-                          <div className="flex h-10 w-10 items-center justify-center rounded-r12 bg-red-main/10">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-r8 bg-red-main/10">
                             <LogOut size={18} />
                           </div>
 
@@ -391,7 +390,7 @@ useEffect(() => {
                 onClick={() =>
                   setMobileMenuOpen(!mobileMenuOpen)
                 }
-                className="lg:hidden flex h-11 w-11 items-center justify-center rounded-r16 bg-primary-main/10 text-primary-main hover:bg-primary-main/20 transition-colors"
+                className="lg:hidden flex h-11 w-11 items-center justify-center rounded-r16 bg-primary-main/10 text-secondary-dark hover:bg-primary-main/20 transition-colors"
                 aria-label="Menu"
               >
                 {mobileMenuOpen ? (
@@ -404,68 +403,78 @@ useEffect(() => {
             </div>
           </div>
         </div>
-
-        {/* ==================================================
-            RASHI NAVIGATION
-            ONLY NEW SECTION
-        ================================================== */}
-
-        <div className="border-t border-primary-main/10 bg-background/70 backdrop-blur-md">
-          <nav
-            aria-label="Rashi navigation"
-            className="
-              mx-auto
-              max-w-7xl
-              flex
-              overflow-x-auto
-              hide-scrollbar
-              overscroll-x-contain
-            "
-          >
-            {RASHIS.map((rashi) => (
-              <Link
-                key={rashi.english}
-                href={`/astrology/horoscope?rashi=${rashi.english}`}
-                className="
-                  group
-                  flex
-                  min-w-[88px]
-                  flex-1
-                  items-center
-                  justify-center
-                  whitespace-nowrap
-                  border-r
-                  border-primary-main/15
-                  px-s8
-                  py-s8
-                  text-center
-                  caption
-                  font-medium
-                  text-main
-                  transition-colors
-                  duration-200
-                  hover:bg-primary-main
-                  hover:text-white
-                  focus-visible:outline-none
-                  focus-visible:ring-2
-                  focus-visible:ring-primary-main
-                  focus-visible:ring-inset
-                  lg:min-w-0
-                  lg:py-[7px]
-                "
-                title={`${rashi.name} (${rashi.hindi}) Horoscope`}
-              >
-                {rashi.name}
-              </Link>
-            ))}
-          </nav>
-        </div>
       </header>
+
+      {/* ==================================================
+          RASHI NAVIGATION
+          ALWAYS VISIBLE — independent fixed bar
+          Slides to top-0 when main navbar hides,
+          sits below navbar when navbar is visible
+      ================================================== */}
+
+      <div
+        className={`
+          fixed left-0 right-0 z-40
+          transition-all duration-300 ease-out
+          ${isVisible ? "top-17" : "top-0"}
+          border-t border-primary-main/10
+          bg-[#ecd9ec]
+        `}
+      >
+        <nav
+          aria-label="Rashi navigation"
+          className="
+            mx-auto
+            max-w-7xl
+            flex
+            overflow-x-auto
+            hide-scrollbar
+            overscroll-x-contain
+          "
+        >
+          {RASHIS.map((rashi) => (
+            <Link
+              key={rashi.english}
+              href={`/astrology/horoscope?rashi=${rashi.english}`}
+              className="
+                group
+                flex
+                min-w-[88px]
+                flex-1
+                items-center
+                justify-center
+                whitespace-nowrap
+                border-r
+                border-primary-main/15
+                px-s8
+                py-s8
+                text-center
+                caption
+                font-medium
+                text-main
+                transition-colors
+                duration-200
+                hover:bg-primary-main
+                hover:text-white
+                focus-visible:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-primary-main
+                focus-visible:ring-inset
+                lg:min-w-0
+                lg:py-[7px]
+              "
+              title={`${rashi.name} (${rashi.hindi}) Horoscope`}
+            >
+              {rashi.name}
+            </Link>
+          ))}
+        </nav>
+      </div>
 
       {/* ================= MOBILE MENU ================= */}
 
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className="fixed inset-0 z-60 lg:hidden">
 
           <div
             onClick={() => setMobileMenuOpen(false)}
@@ -566,41 +575,7 @@ useEffect(() => {
 
                 <div className="my-s16 border-t border-secondary-main" />
 
-                <div>
-                  <p className="caption mb-s8 px-s8 text-secondary">
-                    HOROSCOPES
-                  </p>
-
-                  <div className="grid grid-cols-3 gap-s8">
-                    {RASHIS.map((rashi) => (
-                      <Link
-                        key={rashi.english}
-                        href={`/astrology/horoscope?rashi=${rashi.english}`}
-                        onClick={() =>
-                          setMobileMenuOpen(false)
-                        }
-                        className="
-                          flex
-                          min-h-10
-                          items-center
-                          justify-center
-                          rounded-r8
-                          border
-                          border-secondary-dark
-                          body-small
-                          font-medium
-                          text-main
-                          transition-colors
-                          hover:border-primary-main
-                          hover:bg-primary-main
-                          hover:text-white
-                        "
-                      >
-                        {rashi.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
+             
 
                 {isLoggedIn && (
                   <>

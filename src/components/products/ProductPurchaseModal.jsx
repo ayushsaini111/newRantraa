@@ -5,10 +5,13 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
-import { Phone } from "lucide-react";
+import { Phone, Sparkles, Check } from "lucide-react";
 
-// ─── Map Picker Component (same as before) ─────────────────────────────────────
+const SHUDDHIKARAN_PRICE = 199;
+
+// ─── Map Picker Component (keep your existing one, unchanged) ───────────────
 function MapPicker({ initialCoords, onConfirm, onClose }) {
+  // ... keep all your existing MapPicker code exactly as is ...
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
@@ -118,10 +121,10 @@ function MapPicker({ initialCoords, onConfirm, onClose }) {
         const icon = L.divIcon({
           className: "",
           html: `<div style="display:flex;flex-direction:column;align-items:center;">
-            <div style="width:36px;height:36px;background:#8A5AB8;border-radius:50% 50% 50% 0;
+            <div style="width:36px;height:36px;background:var(--primary-main);border-radius:50% 50% 50% 0;
               transform:rotate(-45deg);border:3px solid white;
               box-shadow:0 4px 12px rgba(0,0,0,0.3);"></div>
-            <div style="width:8px;height:8px;background:#8A5AB8;border-radius:50%;
+            <div style="width:8px;height:8px;background:var(--primary-main);border-radius:50%;
               margin-top:2px;box-shadow:0 2px 6px rgba(0,0,0,0.2);"></div>
           </div>`,
           iconSize: [36, 46],
@@ -236,13 +239,13 @@ function MapPicker({ initialCoords, onConfirm, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[65] flex max-w-5xl mx-auto my-auto md:h-[90vh] flex-col bg-white">
-      <div className="flex items-center gap-s16 px-s16 py-s16 border-b border-[#E0D4E3] bg-white flex-shrink-0 shadow-sm">
+    <div className="fixed inset-0 z-[65] flex max-w-5xl mx-auto my-auto md:h-[90vh] flex-col bg-background">
+      <div className="flex items-center gap-s16 px-s16 py-s16 border-b border-secondary-dark bg-background flex-shrink-0 shadow-sm">
         <button 
           onClick={onClose}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#F3EAF5] transition-colors"
+          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-secondary-main/30 transition-colors"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2.2" strokeLinecap="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" strokeWidth="2.2" strokeLinecap="round">
             <path d="M19 12H5M12 5l-7 7 7 7"/>
           </svg>
         </button>
@@ -255,18 +258,18 @@ function MapPicker({ initialCoords, onConfirm, onClose }) {
         <button
           onClick={handleLocateMe}
           disabled={locating}
-          className="absolute bottom-[210px] right-s16 z-[400] flex items-center gap-s8 bg-white rounded-r16 shadow-lg px-s16 py-s8 body-small font-medium text-main border border-[#E0D4E3] hover:bg-[#F3EAF5] transition-colors disabled:opacity-60"
+          className="absolute bottom-[210px] right-s16 z-[400] flex items-center gap-s8 bg-background rounded-r16 shadow-lg px-s16 py-s8 body-small font-medium text-main border border-secondary-dark hover:bg-secondary-main/30 transition-colors disabled:opacity-60"
         >
           {locating ? (
             <>
-              <svg className="animate-spin text-[#8A5AB8]" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg className="animate-spin text-primary-main" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
               </svg>
               Locating…
             </>
           ) : (
             <>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8A5AB8" strokeWidth="2.2" strokeLinecap="round">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary-main)" strokeWidth="2.2" strokeLinecap="round">
                 <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
               </svg>
               Use current location
@@ -275,10 +278,10 @@ function MapPicker({ initialCoords, onConfirm, onClose }) {
         </button>
       </div>
 
-      <div className="bg-white px-s16 pt-s18 pb-s16 flex flex-col gap-s16 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] flex-shrink-0">
+      <div className="bg-background px-s16 pt-s18 pb-s16 flex flex-col gap-s16 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] flex-shrink-0">
         {error && (
           <div className="flex items-start gap-s8 bg-red-50 border border-red-200 rounded-r12 px-s16 py-s8">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" className="flex-shrink-0 mt-0.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red-main)" strokeWidth="2" className="flex-shrink-0 mt-0.5">
               <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
             </svg>
             <p className="body-small text-red-700 leading-relaxed">{error}</p>
@@ -286,8 +289,8 @@ function MapPicker({ initialCoords, onConfirm, onClose }) {
         )}
 
         <div className="flex items-start gap-s16">
-          <div className="w-9 h-9 rounded-full bg-[#F3EAF5] flex items-center justify-center flex-shrink-0 mt-0.5">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A5AB8" strokeWidth="2.2" strokeLinecap="round">
+          <div className="w-9 h-9 rounded-full bg-primary-main/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary-main)" strokeWidth="2.2" strokeLinecap="round">
               <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
             </svg>
           </div>
@@ -297,8 +300,8 @@ function MapPicker({ initialCoords, onConfirm, onClose }) {
             </span>
             {loading || locating ? (
               <div className="flex flex-col gap-s6">
-                <div className="h-3 w-52 bg-[#E8D8EA] rounded animate-pulse" />
-                <div className="h-3 w-36 bg-[#E8D8EA] rounded animate-pulse" />
+                <div className="h-3 w-52 bg-secondary-main/40 rounded animate-pulse" />
+                <div className="h-3 w-36 bg-secondary-main/40 rounded animate-pulse" />
               </div>
             ) : (
               <>
@@ -341,8 +344,8 @@ function InputField({ label, error, ...props }) {
       </label>
       <input
         {...props}
-        className={`w-full px-s16 py-s8 border rounded-r8 focus:outline-none transition-colors disabled:bg-gray-50 ${
-          error ? "border-red-500" : "border-[#E0D4E3] focus:border-[#8A5AB8]"
+        className={`w-full px-s16 py-s8 border rounded-r8 focus:outline-none transition-colors disabled:bg-gray-50 body-default ${
+          error ? "border-red-500" : "border-secondary-dark focus:border-primary-main"
         } ${props.disabled ? "opacity-50" : ""}`}
       />
       {error && <p className="text-red-500 body-small mt-s6">{error}</p>}
@@ -350,7 +353,45 @@ function InputField({ label, error, ...props }) {
   );
 }
 
-// ─── Main Product Purchase Modal ──────────────────────────────────────────────
+// ─── ✅ Shuddhikaran Option Component ────────────────────────────────────────
+function ShuddhikaranOption({ checked, onChange, disabled }) {
+  return (
+    <button
+      type="button"
+      onClick={() => !disabled && onChange(!checked)}
+      disabled={disabled}
+      className={`w-full flex items-start gap-s16 p-s16 rounded-r16 border text-left transition-colors disabled:opacity-50 ${
+        checked
+          ? "border-primary-main bg-primary-main/5"
+          : "border-secondary-dark bg-background hover:border-primary-light"
+      }`}
+    >
+      <div
+        className={`w-6 h-6 rounded-r8 flex items-center justify-center shrink-0 mt-0.5 border-2 transition-colors ${
+          checked ? "bg-primary-main border-primary-main" : "border-secondary-dark"
+        }`}
+      >
+        {checked && <Check size={14} className="text-background" strokeWidth={3} />}
+      </div>
+
+      <div className="flex-1">
+        <div className="flex items-center gap-s8 mb-s4">
+          <Sparkles size={16} className="text-primary-main" />
+          <p className="body-default font-semibold text-main">Add Shuddhikaran (Purification)</p>
+        </div>
+        <p className="body-small text-secondary leading-relaxed">
+          Get your product energized and purified by our Pandit Ji before delivery — includes Vedic mantras and ritual cleansing.
+        </p>
+      </div>
+
+      <div className="shrink-0 text-right">
+        <p className="body-default font-semibold text-primary-main">+₹{SHUDDHIKARAN_PRICE}</p>
+      </div>
+    </button>
+  );
+}
+
+// ─── ✅ Main Product Purchase Modal ──────────────────────────────────────────
 export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -367,10 +408,10 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
     specialRequests: "",
   });
 
-  // Location state - SIMPLIFIED: Both pin location AND address required
   const [showMap, setShowMap] = useState(false);
   const [mapCoords, setMapCoords] = useState(null);
   const [mapAddress, setMapAddress] = useState("");
+  const [shuddhikaranRequested, setShuddhikaranRequested] = useState(false); // ✅ NEW
   
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -384,7 +425,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
     document.body.appendChild(script);
     
     return () => {
-      document.body.removeChild(script);
+      if (document.body.contains(script)) document.body.removeChild(script);
     };
   }, []);
 
@@ -394,7 +435,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
     return () => { document.body.style.overflow = ""; };
   }, [showMap]);
 
-  // Auto-fetch user details from session-based API
+  // Auto-fetch user details
   useEffect(() => {
     if (!session?.user?.id) return;
 
@@ -418,7 +459,6 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
             pinCode: data.pinCode || "",
           }));
           
-          // Google user with no phone yet
           if (!data.phone && data.provider === "GOOGLE") {
             setNeedsPhone(true);
           }
@@ -434,7 +474,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
   if (status === "unauthenticated") {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-s16">
-        <div className="bg-white rounded-r24 p-s32 max-w-sm w-full text-center space-y-s16">
+        <div className="bg-background rounded-r24 p-s32 max-w-sm w-full text-center space-y-s16">
           <h3 className="heading-h5 text-main">Sign In Required</h3>
           <p className="body-default text-secondary">Please sign in to purchase this product</p>
           <div className="flex gap-s16">
@@ -463,7 +503,6 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
     setErrors(prev => ({ ...prev, location: null }));
   };
 
-  // ✅ SIMPLIFIED VALIDATION - Both pin AND address required
   const validateForm = () => {
     const newErrors = {};
 
@@ -481,7 +520,6 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
       newErrors.email = "Please enter a valid email address";
     }
 
-    // ✅ BOTH location pin AND address required
     if (!mapCoords) {
       newErrors.location = "Please pin your delivery location on the map";
     }
@@ -510,6 +548,11 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
     }
   };
 
+  // ✅ Calculate totals including Shuddhikaran
+  const subtotal = product.price * (formData.quantity || 1);
+  const shuddhikaranCost = shuddhikaranRequested ? SHUDDHIKARAN_PRICE : 0;
+  const totalPrice = subtotal + shuddhikaranCost;
+
   const initiatePayment = async () => {
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -521,21 +564,20 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
     setErrors({});
 
     try {
-      // ✅ Create complete delivery address combining both pin location AND manual address
       const combinedAddress = `${formData.address}${formData.landmark ? `, ${formData.landmark}` : ''} - ${formData.pinCode}`;
       
       const deliveryLocation = {
-        type: "complete", // Both GPS + manual
+        type: "complete",
         latitude: mapCoords.lat,
         longitude: mapCoords.lng,
-        gpsAddress: mapAddress, // From reverse geocoding
-        manualAddress: combinedAddress, // User entered
-        fullAddress: combinedAddress, // Final combined address
+        gpsAddress: mapAddress,
+        manualAddress: combinedAddress,
+        fullAddress: combinedAddress,
         pinCode: formData.pinCode,
         landmark: formData.landmark,
       };
 
-      // 1. Create Razorpay order
+      // ✅ Include Shuddhikaran in order creation
       const orderRes = await fetch("/backend/create-product-order", {
         method: "POST",
         headers: {
@@ -545,13 +587,15 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
           'x-user-name': session.user.name || '',
         },
         body: JSON.stringify({
-          amount: totalPrice * 100, // in paise
+          amount: totalPrice * 100, // ✅ includes Shuddhikaran
           currency: "INR",
           productId: product.id,
           productTitle: product.title,
           productImage: product.image,
           quantity: formData.quantity,
           unitPrice: product.price,
+          shuddhikaranRequested, // ✅ NEW
+          shuddhikaranAmount: shuddhikaranCost, // ✅ NEW
           deliveryLocation,
           userDetails: formData,
         }),
@@ -560,7 +604,6 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
       const orderData = await orderRes.json();
       if (!orderData.success) throw new Error(orderData.error);
 
-      // 2. Open Razorpay checkout
       const razorpay = new window.Razorpay({
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: orderData.order.amount,
@@ -573,7 +616,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
           email: formData.email,
           contact: `+91${formData.phone}`,
         },
-        theme: { color: "#8A5AB8" },
+        theme: { color: "#341539" },
         handler: async (response) => {
           await verifyPayment(response, deliveryLocation);
         },
@@ -602,6 +645,8 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
           ...response,
           userDetails: formData,
           deliveryLocation,
+          shuddhikaranRequested, // ✅ Pass to backend
+          shuddhikaranAmount: shuddhikaranCost, // ✅ Pass to backend
           productDetails: {
             productId: product.id,
             productTitle: product.title,
@@ -622,6 +667,8 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
           quantity: formData.quantity,
           unitPrice: product.price,
           totalPrice: totalPrice,
+          shuddhikaranRequested, // ✅ Pass to confirmation
+          shuddhikaranAmount: shuddhikaranCost, // ✅ Pass to confirmation
           deliveryLocation,
           userDetails: formData,
           orderDate: new Date().toISOString(),
@@ -642,11 +689,8 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
     }
   };
 
-  const totalPrice = product.price * (formData.quantity || 1);
-
   return (
     <>
-      {/* Map Picker */}
       {showMap && (
         <MapPicker
           initialCoords={mapCoords}
@@ -655,16 +699,15 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
         />
       )}
 
-      {/* Main Modal */}
       <div
         ref={overlayRef}
         onClick={handleOverlayClick}
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-s16 overflow-y-auto"
       >
-        <div className="bg-white rounded-r24 w-full max-w-2xl my-s16 max-h-[90vh] overflow-y-auto">
+        <div className="bg-background rounded-r24 w-full max-w-2xl my-s16 max-h-[90vh] overflow-y-auto">
           
           {/* Header */}
-          <div className="border-b border-[#E0D4E3] p-s16 flex items-start justify-between sticky top-0 bg-white z-10">
+          <div className="border-b border-secondary-dark p-s16 flex items-start justify-between sticky top-0 bg-background z-10">
             <div className="flex items-start gap-s16 flex-1">
               <div className="relative w-16 h-16 rounded-r12 overflow-hidden flex-shrink-0">
                 <Image
@@ -694,7 +737,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
               onClick={onClose}
               disabled={isSubmitting}
               type="button"
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#F3EAF5] transition-colors disabled:opacity-50 flex-shrink-0"
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-secondary-main/30 transition-colors disabled:opacity-50 flex-shrink-0"
             >
               ✕
             </button>
@@ -728,7 +771,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                   <label className="block body-small font-medium text-main mb-s6">
                     Phone Number *
                   </label>
-                  <div className={`flex items-center gap-2 rounded-r8 border px-s16 py-s8 bg-white transition ${errors.phone ? "border-red-500" : "border-[#E0D4E3]"}`}>
+                  <div className={`flex items-center gap-2 rounded-r8 border px-s16 py-s8 bg-background transition ${errors.phone ? "border-red-500" : "border-secondary-dark"}`}>
                     <Phone size={16} className="text-secondary shrink-0" />
                     <span className="body-small text-secondary">+91</span>
                     <input
@@ -760,7 +803,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
               />
             </div>
 
-            {/* Order Details */}
+            {/* Order Details + Shuddhikaran */}
             <div className="space-y-s16">
               <h3 className="heading-h6 text-main">Order Details</h3>
               
@@ -776,7 +819,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                       handleInputChange("quantity", newQty);
                     }}
                     disabled={isSubmitting || formData.quantity <= 1}
-                    className="w-10 h-10 rounded-r8 border border-[#E0D4E3] flex items-center justify-center hover:bg-[#F3EAF5] transition-colors disabled:opacity-50"
+                    className="w-10 h-10 rounded-r8 border border-secondary-dark flex items-center justify-center hover:bg-secondary-main/30 transition-colors disabled:opacity-50"
                   >
                     −
                   </button>
@@ -787,8 +830,8 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                     value={formData.quantity}
                     onChange={(e) => handleInputChange("quantity", parseInt(e.target.value) || 1)}
                     disabled={isSubmitting}
-                    className={`w-20 px-s16 py-s8 border rounded-r8 text-center focus:outline-none transition-colors disabled:bg-gray-50 ${
-                      errors.quantity ? "border-red-500" : "border-[#E0D4E3] focus:border-[#8A5AB8]"
+                    className={`w-20 px-s16 py-s8 border rounded-r8 text-center focus:outline-none transition-colors disabled:bg-gray-50 body-default ${
+                      errors.quantity ? "border-red-500" : "border-secondary-dark focus:border-primary-main"
                     }`}
                   />
                   <button
@@ -798,26 +841,32 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                       handleInputChange("quantity", newQty);
                     }}
                     disabled={isSubmitting}
-                    className="w-10 h-10 rounded-r8 border border-[#E0D4E3] flex items-center justify-center hover:bg-[#F3EAF5] transition-colors disabled:opacity-50"
+                    className="w-10 h-10 rounded-r8 border border-secondary-dark flex items-center justify-center hover:bg-secondary-main/30 transition-colors disabled:opacity-50"
                   >
                     +
                   </button>
                   <span className="body-small text-secondary ml-s8">
-                    ₹{product.price} × {formData.quantity} = ₹{totalPrice.toLocaleString()}
+                    ₹{product.price} × {formData.quantity} = ₹{subtotal.toLocaleString()}
                   </span>
                 </div>
                 {errors.quantity && <p className="text-red-500 body-small mt-s6">{errors.quantity}</p>}
               </div>
+
+              {/* ✅ Shuddhikaran Add-on */}
+              <ShuddhikaranOption
+                checked={shuddhikaranRequested}
+                onChange={setShuddhikaranRequested}
+                disabled={isSubmitting}
+              />
             </div>
 
-            {/* ✅ COMBINED DELIVERY ADDRESS - Both pin location AND manual address */}
+            {/* Delivery Address (keep your existing code) */}
             <div className="space-y-s16">
               <h3 className="heading-h6 text-main">Delivery Address</h3>
 
-              {/* Step 1: Pin Location */}
-              <div className="bg-[#F9F4FB] rounded-r16 p-s16 border border-[#E0D4E3]">
+              <div className="bg-secondary-skin rounded-r16 p-s16 border border-secondary-dark">
                 <div className="flex items-center gap-s8 mb-s16">
-                  <span className="w-6 h-6 bg-[#8A5AB8] text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                  <span className="w-6 h-6 bg-primary-main text-background rounded-full flex items-center justify-center text-xs font-bold">1</span>
                   <span className="body-small font-semibold text-main">Pin Your Exact Location</span>
                 </div>
 
@@ -830,15 +879,15 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                     type="button"
                     onClick={() => setShowMap(true)}
                     disabled={isSubmitting}
-                    className={`flex items-center gap-s16 rounded-r20 border-2 ${errors.location ? 'border-red-500' : 'border-dashed border-[#C39BD3]'} bg-white px-s16 py-s16 w-full text-left hover:bg-[#F3EAF5] transition-colors group disabled:opacity-50`}
+                    className={`flex items-center gap-s16 rounded-r20 border-2 ${errors.location ? 'border-red-500' : 'border-dashed border-primary-light'} bg-background px-s16 py-s16 w-full text-left hover:bg-secondary-main/20 transition-colors group disabled:opacity-50`}
                   >
-                    <div className="w-10 h-10 rounded-full bg-[#E8D8EA] flex items-center justify-center flex-shrink-0 group-hover:bg-[#D8BFE0] transition-colors">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A5AB8" strokeWidth="2.2">
+                    <div className="w-10 h-10 rounded-full bg-primary-main/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary-main/20 transition-colors">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-main)" strokeWidth="2.2">
                         <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                       </svg>
                     </div>
                     <div className="flex flex-col">
-                      <span className="body-default font-semibold text-[#8A5AB8]">📍 Pin your location on map</span>
+                      <span className="body-default font-semibold text-primary-main">📍 Pin your location on map</span>
                       <span className="body-small text-secondary">For precise delivery location</span>
                     </div>
                   </button>
@@ -860,7 +909,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                       type="button"
                       onClick={() => setShowMap(true)}
                       disabled={isSubmitting}
-                      className="body-small font-medium text-[#8A5AB8] hover:underline flex-shrink-0 disabled:opacity-50"
+                      className="body-small font-medium text-primary-main hover:underline flex-shrink-0 disabled:opacity-50"
                     >
                       Change
                     </button>
@@ -868,10 +917,9 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                 )}
               </div>
 
-              {/* Step 2: Complete Address Details */}
-              <div className="bg-[#F9F4FB] rounded-r16 p-s16 border border-[#E0D4E3] space-y-s16">
+              <div className="bg-secondary-skin rounded-r16 p-s16 border border-secondary-dark space-y-s16">
                 <div className="flex items-center gap-s8">
-                  <span className="w-6 h-6 bg-[#8A5AB8] text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                  <span className="w-6 h-6 bg-primary-main text-background rounded-full flex items-center justify-center text-xs font-bold">2</span>
                   <span className="body-small font-semibold text-main">Complete Address Details</span>
                 </div>
 
@@ -911,7 +959,6 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                 />
               </div>
 
-              {/* Special Instructions */}
               <div>
                 <label className="block body-small font-medium text-main mb-s6">
                   Special Instructions (Optional)
@@ -921,15 +968,15 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                   value={formData.specialRequests}
                   onChange={(e) => handleInputChange("specialRequests", e.target.value)}
                   disabled={isSubmitting}
-                  className="w-full px-s16 py-s8 border border-[#E0D4E3] rounded-r8 focus:outline-none focus:border-[#8A5AB8] transition-colors resize-none disabled:bg-gray-50"
+                  className="w-full px-s16 py-s8 border border-secondary-dark rounded-r8 focus:outline-none focus:border-primary-main transition-colors resize-none disabled:bg-gray-50 body-default"
                   rows={3}
                   placeholder="e.g. Leave at door, Call before delivery, etc."
                 />
               </div>
             </div>
 
-            {/* Order Summary */}
-            <div className="bg-[#F9F4FB] rounded-r16 p-s16 space-y-s16">
+            {/* ✅ Updated Order Summary with Shuddhikaran */}
+            <div className="bg-secondary-skin rounded-r16 p-s16 space-y-s16">
               <h4 className="heading-h6 text-main">Order Summary</h4>
               <div className="space-y-s8">
                 <div className="flex justify-between">
@@ -940,6 +987,19 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                   <span className="body-default text-secondary">Quantity</span>
                   <span className="body-default text-main">× {formData.quantity}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="body-default text-secondary">Subtotal</span>
+                  <span className="body-default text-main">₹{subtotal.toLocaleString()}</span>
+                </div>
+                {shuddhikaranRequested && (
+                  <div className="flex justify-between text-primary-main">
+                    <span className="body-default flex items-center gap-s6">
+                      <Sparkles size={14} />
+                      Shuddhikaran
+                    </span>
+                    <span className="body-default font-medium">₹{SHUDDHIKARAN_PRICE}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="body-default text-secondary">Delivery Charges</span>
                   <span className="body-default text-green-600">Free</span>
@@ -952,7 +1012,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                     </span>
                   </div>
                 )}
-                <div className="border-t border-[#E0D4E3] pt-s8 flex justify-between">
+                <div className="border-t border-secondary-dark pt-s8 flex justify-between">
                   <span className="heading-h6 text-main">Total Amount</span>
                   <span className="heading-h6 text-primary-main">₹{totalPrice.toLocaleString()}</span>
                 </div>
@@ -983,7 +1043,7 @@ export default function ProductPurchaseModal({ product, onClose, onSuccess }) {
                     Processing...
                   </span>
                 ) : (
-                  `Pay ₹${totalPrice.toLocaleString()}`
+                  `Pay ₹{totalPrice.toLocaleString()}`
                 )}
               </Button>
             </div>

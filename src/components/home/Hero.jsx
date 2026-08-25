@@ -1,21 +1,39 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Button from "@/components/ui/Button";
 
 export default function Hero() {
   const router = useRouter();
 
   return (
-    <section className="relative isolate mt-s80 overflow-hidden bg-primary-light/20 ">
+    <section className="relative isolate mt-s80 overflow-hidden">
+      {/* Full-section background video */}
+      <video
+        className="absolute inset-0 z-0 h-full w-full object-cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster="/hero-poster.jpg"
+      >
+        <source src="/hero.mp4" type="video/mp4" />
+      </video>
+
+      {/* Tint overlay on top of video, using your primary-light token */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-10 backdrop-blur-xs"
+      />
+
       {/* Top Curve */}
       <div
         aria-hidden="true"
         className="
           absolute
-          -top-[110px]
+          -top-[230px] md:-top-[110px]
           left-1/2
+          z-10
           h-[170px]
           w-[125%]
           -translate-x-1/2
@@ -28,15 +46,17 @@ export default function Hero() {
       <div
         className="
           relative
-          z-10
+          z-20
           mx-auto
           flex
-          min-h-[780px]
+          min-h-[600px]
           max-w-7xl
           items-center
           px-s16
-          py-s80
+          py-s48
           sm:px-s24
+          sm:py-s64
+          lg:min-h-[780px]
           lg:px-s32
           lg:py-s104
         "
@@ -46,7 +66,8 @@ export default function Hero() {
             grid
             w-full
             items-center
-            gap-s48
+            gap-s32
+            sm:gap-s48
             lg:grid-cols-[1.35fr_0.65fr]
             lg:gap-s64
           "
@@ -57,7 +78,7 @@ export default function Hero() {
               className="
                 heading-h2
                 max-w-[620px]
-                text-primary-main
+                text-white/85
               "
             >
               Talk to Experienced
@@ -67,45 +88,14 @@ export default function Hero() {
               for Every Stage of Life.
             </h1>
 
-            <div className="mt-s32">
-              <Button
-                onClick={() => router.push("/consult")}
-              >
+            <div className="mt-s24 sm:mt-s32">
+              <Button onClick={() => router.push("/consult")}>
                 Talk to Pandit
               </Button>
             </div>
           </div>
 
-          {/* Right Image */}
-          <div className="flex justify-center lg:justify-end">
-            <div
-              className="
-                relative
-                h-[300px]
-                w-full
-                max-w-[400px]
-                overflow-hidden
-                rounded-r16
-                bg-background
-                shadow-sm
-                sm:h-[360px]
-                lg:h-[390px]
-              "
-            >
-              <Image
-                src="/hero.jpg"
-                alt="Experienced Pandit"
-                fill
-                priority
-                sizes="
-                  (max-width: 640px) 90vw,
-                  (max-width: 1024px) 50vw,
-                  400px
-                "
-                className="object-cover"
-              />
-            </div>
-          </div>
+        
         </div>
       </div>
 
@@ -114,8 +104,9 @@ export default function Hero() {
         aria-hidden="true"
         className="
           absolute
-          -bottom-[105px]
+           -bottom-[150px] md:-bottom-[105px]
           left-1/2
+          z-10
           h-[200px]
           w-[125%]
           -translate-x-1/2

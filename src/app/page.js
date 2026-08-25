@@ -1,7 +1,6 @@
 import AstrologyToolsSection from "@/components/home/AstrologyToolsSection";
 import CommunityOfferSection from "@/components/home/CommunityOfferSection";
 import FaqSection from "@/components/home/FaqSection";
-import Footer from "@/components/footer/Footer";
 import FullImageSection from "@/components/home/FullImageSection";
 import Hero from "@/components/home/Hero";
 import PanditSection from "@/components/home/PanditSection";
@@ -44,7 +43,7 @@ export default async function Page() {
   };
 
   return (
-    <div>
+    <div className=" space-y-s80">
       <Hero />
       <CommunityOfferSection />
       <PanditSection />

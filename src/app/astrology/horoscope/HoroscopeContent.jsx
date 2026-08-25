@@ -166,25 +166,25 @@ Get your detailed AI horoscope at: ${window.location.origin}/astrology/horoscope
   };
 
   return (
-    <div className="min-h-screen mt-[90px] bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50">
+    <div className="min-h-screen mt-[104px] bg-background ">
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-600 to-red-600 shadow-lg">
+      <div className="bg-primary-main shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => router.back()}
-                className="p-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                className="p-2 bg-background/20 hover:bg-background/30 rounded-lg transition-colors"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-5 h-5 text-background" />
               </button>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center">
+                <h1 className="text-2xl md:text-3xl font-bold text-background flex items-center">
                   <Star className="w-8 h-8 mr-2" />
                   राशिफल - AI Horoscope
                 </h1>
-                <p className="text-orange-100 mt-1 flex items-center gap-2">
+                <p className="text-background/80 mt-1 flex items-center gap-2">
                   <Zap className="w-4 h-4 fill-current" />
                   Powered by AI & Vedic Astrology
                 </p>
@@ -195,14 +195,14 @@ Get your detailed AI horoscope at: ${window.location.origin}/astrology/horoscope
               <div className="flex items-center space-x-3">
                 <button
                   onClick={handleDownload}
-                  className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-white"
+                  className="flex items-center space-x-2 px-4 py-2 bg-background/20 hover:bg-background/30 rounded-lg transition-colors text-background"
                 >
                   <Download className="w-4 h-4" />
                   <span className="hidden sm:inline">Download</span>
                 </button>
                 <button
                   onClick={handleShare}
-                  className="flex items-center space-x-2 px-4 py-2 bg-white text-orange-600 rounded-lg hover:bg-orange-50 transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 bg-background text-primary-main rounded-lg hover:bg-secondary-main transition-colors"
                 >
                   <Share2 className="w-4 h-4" />
                   <span className="hidden sm:inline">Share</span>
@@ -235,27 +235,24 @@ Get your detailed AI horoscope at: ${window.location.origin}/astrology/horoscope
               />
             </div>
 
-            {/* Loading State */}
+            {/* Loading State — no spinner, simple text only */}
             {loading && (
-              <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
-                <div className="relative">
-                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-200 border-t-orange-600 mx-auto mb-4"></div>
-                </div>
-                <p className="text-gray-600">Generating your {period} horoscope</p>
+              <div className="bg-background rounded-2xl shadow-xl p-12 text-center border border-secondary-dark">
+                <p className="text-secondary">Generating your {period} horoscope...</p>
               </div>
             )}
 
             {/* Error State */}
             {error && (
-              <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
-                <div className="flex items-center space-x-2 text-red-800">
+              <div className="bg-red-main/5 border-2 border-red-main/20 rounded-2xl p-6">
+                <div className="flex items-center space-x-2 text-red-main">
                   <span className="text-2xl">⚠️</span>
                   <span className="font-semibold">Error</span>
                 </div>
-                <p className="text-red-700 mt-2">{error}</p>
+                <p className="text-red-main/80 mt-2">{error}</p>
                 <button
                   onClick={fetchHoroscope}
-                  className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="mt-4 px-4 py-2 bg-red-main text-background rounded-lg hover:bg-red-dark transition-colors"
                 >
                   Try Again
                 </button>
@@ -285,10 +282,10 @@ Get your detailed AI horoscope at: ${window.location.origin}/astrology/horoscope
         {!selectedRashi && (
           <div className="mt-16">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl font-bold text-main mb-4">
                 Why Choose AI Horoscope?
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+              <p className="text-secondary max-w-2xl mx-auto">
                 Advanced AI trained on thousands of Vedic astrology texts
               </p>
             </div>
@@ -324,10 +321,10 @@ Get your detailed AI horoscope at: ${window.location.origin}/astrology/horoscope
 
 function FeatureCard({ icon, title, description }) {
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 text-center border-2 border-orange-100 hover:border-orange-300 transition-all hover:shadow-xl">
+    <div className="bg-background rounded-xl shadow-lg p-6 text-center border-2 border-secondary-dark hover:border-primary-main/40 transition-all hover:shadow-xl">
       <div className="text-5xl mb-4">{icon}</div>
-      <h3 className="font-bold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-600">{description}</p>
+      <h3 className="font-bold text-main mb-2">{title}</h3>
+      <p className="text-sm text-secondary">{description}</p>
     </div>
   );
 }

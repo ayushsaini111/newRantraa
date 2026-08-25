@@ -15,7 +15,7 @@ export default function FullImageSection({
           fill
           priority
           sizes="100vw"
-          className="object-cover mb-s104"
+          className="object-[50%] mb-s104"
         />
       </div>
     </section>

@@ -43,7 +43,7 @@ const FOOTER_COLUMNS = [
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-primary-light/30">
+    <footer className="w-full bg-primary-main">
       <div className="mx-auto max-w-7xl px-s16 pb-s24 pt-s80 lg:px-s32 lg:pt-s104">
 
         {/* Main Footer */}
@@ -84,16 +84,16 @@ export default function Footer() {
         <div className="mt-s64 flex flex-col gap-s16 border-t border-black/10 pt-s24 sm:flex-row sm:items-center sm:justify-between">
 
           {/* Copyright */}
-          <p className="text-xs text-secondary">
+          <p className="text-xs text-background">
             © {new Date().getFullYear()} Rantraa. All Rights Reserved.
           </p>
 
           {/* Developer */}
-          <p className="text-xs text-secondary">
+          <p className="text-xs text-background">
             Design &amp; Developed by{" "}
             <a
-              href="#"
-              className="text-main underline underline-offset-2 transition-opacity hover:opacity-60"
+              href="https://www.oryvia.in"
+              className="text-background underline underline-offset-2 transition-opacity hover:opacity-60"
             >
               Oryvia
             </a>
@@ -111,7 +111,7 @@ export default function Footer() {
 function FooterColumn({ title, links }) {
   return (
     <div>
-      <h3 className="text-base font-semibold text-main">
+      <h3 className="text-base font-semibold text-background">
         {title}
       </h3>
 
@@ -123,9 +123,9 @@ function FooterColumn({ title, links }) {
               className="
                 text-md
                 leading-5
-                text-secondary
+                text-background/50
                 transition-colors
-                hover:text-main
+                hover:text-background
               "
             >
               {link.label}

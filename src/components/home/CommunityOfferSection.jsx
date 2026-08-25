@@ -39,7 +39,7 @@ export default function CommunityOfferSection() {
           py-s48
           text-center
           sm:min-h-[320px]
-          lg:py-s64
+          lg:py-0
         "
       >
         {/* Small Heading */}

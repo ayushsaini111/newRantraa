@@ -39,7 +39,7 @@ const isLoggedIn = !!session;
         pb-[env(safe-area-inset-bottom)]
       "
     >
-      <div className="grid h-16 grid-cols-4">
+      <div className="grid h-16 grid-cols-5">
 
         {MOBILE_NAV.map((item) => {
           const Icon = item.icon;

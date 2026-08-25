@@ -3,10 +3,11 @@
 /* 🌍 Global Design Tokens */
 :root {
     --primary-main: #341539;
-    --primary-light: #792e85;
+    --primary-light: #64236e;
     --secondary-main: #d0cfd1;
-    --secondary-dark: #c9cad2;
-    --accent-main: #804012;
+    --secondary-skin: #F8E6DA;
+    --secondary-dark: #dedfe7;
+    --accent-main: rgb(235, 162, 111);
     --red-main: #c03737;
     --red-dark: #6C2E2E;
 

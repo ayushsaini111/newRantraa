@@ -24,7 +24,7 @@ function InputField({ label, error, ...props }) {
       <label className="body-small text-secondary">{label}</label>
       <input
         {...props}
-        className={`mt-1 w-full rounded-r8 border px-4 py-3 outline-none focus:border-primary bg-white body-small transition ${
+        className={`mt-1 w-full rounded-r8 border px-3 sm:px-4 py-2.5 sm:py-3 outline-none focus:border-primary bg-white body-small transition ${
           error ? "border-red-main" : "border-border"
         } ${props.disabled ? "opacity-50" : ""}`}
       />
@@ -35,8 +35,8 @@ function InputField({ label, error, ...props }) {
 
 function SectionCard({ title, children }) {
   return (
-    <div className="bg-gray-100 rounded-r16 border border-border p-6">
-      <h2 className="body-default font-semibold mb-5">{title}</h2>
+    <div className="bg-gray-100 rounded-r16 border border-border p-4 sm:p-6">
+      <h2 className="body-default font-semibold mb-4 sm:mb-5">{title}</h2>
       {children}
     </div>
   );
@@ -57,13 +57,12 @@ export default function CheckoutForm() {
   } = useCheckoutStore();
 
   const [loading, setLoading] = useState(false);
-  const [poojaLoading, setPoojaLoading] = useState(true); // New loading state for pooja fetch
+  const [poojaLoading, setPoojaLoading] = useState(true);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookingDetails, setBookingDetails] = useState(null);
   const [errors, setErrors] = useState({});
   const [needsPhone, setNeedsPhone] = useState(false);
 
-  // 🔥 Load pooja from database API instead of static data
   useEffect(() => {
     async function fetchPooja() {
       if (!poojaId) {
@@ -71,7 +70,6 @@ export default function CheckoutForm() {
         return;
       }
 
-      // Check if we already have the right pooja in store
       if (pooja && String(pooja.id) === String(poojaId)) {
         setPoojaLoading(false);
         return;
@@ -100,38 +98,35 @@ export default function CheckoutForm() {
     fetchPooja();
   }, [poojaId, pooja, setPooja, router]);
 
-  // Auto-fetch user details from session-based API
-// Auto-fetch user details from session-based API
-useEffect(() => {
-  if (!session?.user?.id) return;
+  useEffect(() => {
+    if (!session?.user?.id) return;
 
-  fetch("/backend/user/profile", {
-    headers: {
-      'x-user-id': session.user.id,
-      'x-user-email': session.user.email || '',
-      'x-user-name': session.user.name || '',
-    }
-  })
-    .then((r) => r.json())
-    .then((data) => {
-      if (data) {
-        setUserDetails({
-          name: data.name || "",
-          phone: data.phone || "",
-          email: data.email || "",
-          houseNo: data.houseNo || "",
-          address: data.address || "",
-          landmark: data.landmark || "",
-          pinCode: data.pinCode || "",
-        });
-        // Google user with no phone yet
-        if (!data.phone && data.provider === "GOOGLE") {
-          setNeedsPhone(true);
-        }
+    fetch("/backend/user/profile", {
+      headers: {
+        'x-user-id': session.user.id,
+        'x-user-email': session.user.email || '',
+        'x-user-name': session.user.name || '',
       }
     })
-    .catch(console.error);
-}, [session, setUserDetails]);
+      .then((r) => r.json())
+      .then((data) => {
+        if (data) {
+          setUserDetails({
+            name: data.name || "",
+            phone: data.phone || "",
+            email: data.email || "",
+            houseNo: data.houseNo || "",
+            address: data.address || "",
+            landmark: data.landmark || "",
+            pinCode: data.pinCode || "",
+          });
+          if (!data.phone && data.provider === "GOOGLE") {
+            setNeedsPhone(true);
+          }
+        }
+      })
+      .catch(console.error);
+  }, [session, setUserDetails]);
 
   function validate() {
     const e = {};
@@ -163,129 +158,126 @@ useEffect(() => {
     return Object.keys(e).length === 0;
   }
 
- // In CheckoutForm.jsx
-async function initiatePayment() {
-  if (!validate()) return;
+  async function initiatePayment() {
+    if (!validate()) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    // Save phone if Google user added it
-    if (needsPhone && userDetails.phone) {
-      const fd = new FormData();
-      fd.append("phone", userDetails.phone);
+    try {
+      if (needsPhone && userDetails.phone) {
+        const fd = new FormData();
+        fd.append("phone", userDetails.phone);
 
-      await fetch("/backend/user/profile", {
-        method: "PUT",
-        headers: {
-          'x-user-id': session.user.id,
-          'x-user-email': session.user.email || '',
-          'x-user-name': session.user.name || '',
+        await fetch("/backend/user/profile", {
+          method: "PUT",
+          headers: {
+            'x-user-id': session.user.id,
+            'x-user-email': session.user.email || '',
+            'x-user-name': session.user.name || '',
+          },
+          body: fd,
+        });
+      }
+
+      const orderRes = await fetch("/backend/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: pooja.offer_price * 100,
+          currency: "INR",
+          poojaId: pooja.id,
+          poojaTitle: pooja.title,
+        }),
+      });
+
+      const orderData = await orderRes.json();
+      if (!orderData.success) throw new Error(orderData.error);
+
+      if (typeof window.Razorpay === "undefined") {
+        alert("Payment gateway not loaded. Please refresh.");
+        setLoading(false);
+        return;
+      }
+
+      const razorpay = new window.Razorpay({
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: orderData.order.amount,
+        currency: orderData.order.currency,
+        name: "Rantraa",
+        description: pooja.title,
+        order_id: orderData.order.id,
+        prefill: {
+          name: userDetails.name,
+          email: userDetails.email,
+          contact: `+91${userDetails.phone}`,
         },
-        body: fd,
+        theme: { color: "#FF6B35" },
+        handler: async (response) => {
+          await verifyPayment(response);
+        },
+        modal: {
+          ondismiss: () => setLoading(false),
+        },
       });
-    }
 
-    const orderRes = await fetch("/backend/create-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: pooja.offer_price * 100,
-        currency: "INR",
-        poojaId: pooja.id,
-        poojaTitle: pooja.title,
-      }),
-    });
-
-    const orderData = await orderRes.json();
-    if (!orderData.success) throw new Error(orderData.error);
-
-    if (typeof window.Razorpay === "undefined") {
-      alert("Payment gateway not loaded. Please refresh.");
-      setLoading(false);
-      return;
-    }
-
-    const razorpay = new window.Razorpay({
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-      amount: orderData.order.amount,
-      currency: orderData.order.currency,
-      name: "Rantraa",
-      description: pooja.title,
-      order_id: orderData.order.id,
-      prefill: {
-        name: userDetails.name,
-        email: userDetails.email,
-        contact: `+91${userDetails.phone}`,
-      },
-      theme: { color: "#FF6B35" },
-      handler: async (response) => {
-        await verifyPayment(response);
-      },
-      modal: {
-        ondismiss: () => setLoading(false),
-      },
-    });
-
-    razorpay.on("payment.failed", (r) => {
-      alert("Payment failed: " + r.error.description);
-      setLoading(false);
-    });
-
-    razorpay.open();
-  } catch (err) {
-    console.error(err);
-    alert("Failed to initiate payment. Please try again.");
-    setLoading(false);
-  }
-}
-
-async function verifyPayment(response) {
-  try {
-    const res = await fetch("/backend/verify-payment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...response,
-        userDetails,
-        pooja,
-        selectedDate,
-        selectedTimeSlot,
-        userId: session.user.id,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      setBookingDetails({
-        bookingId: data.booking.bookingId,
-        date: selectedDate,
-        timeSlot: TIME_SLOT_LABELS[selectedTimeSlot],
-        address:
-          pooja.mode === "At Home"
-            ? `${userDetails.houseNo}, ${userDetails.address}${userDetails.landmark ? ", " + userDetails.landmark : ""}, ${userDetails.pinCode}`
-            : "Online via Video Call",
-        phone: userDetails.phone,
-        email: userDetails.email,
+      razorpay.on("payment.failed", (r) => {
+        alert("Payment failed: " + r.error.description);
+        setLoading(false);
       });
-      setShowConfirmation(true);
-      setLoading(false);
-    } else {
-      alert(data.message || "Payment verification failed");
+
+      razorpay.open();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to initiate payment. Please try again.");
       setLoading(false);
     }
-  } catch (err) {
-    console.error(err);
-    alert("Verification failed. Please contact support.");
-    setLoading(false);
   }
-}
 
-  // 🔥 Loading state for pooja fetch
+  async function verifyPayment(response) {
+    try {
+      const res = await fetch("/backend/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...response,
+          userDetails,
+          pooja,
+          selectedDate,
+          selectedTimeSlot,
+          userId: session.user.id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setBookingDetails({
+          bookingId: data.booking.bookingId,
+          date: selectedDate,
+          timeSlot: TIME_SLOT_LABELS[selectedTimeSlot],
+          address:
+            pooja.mode === "At Home"
+              ? `${userDetails.houseNo}, ${userDetails.address}${userDetails.landmark ? ", " + userDetails.landmark : ""}, ${userDetails.pinCode}`
+              : "Online via Video Call",
+          phone: userDetails.phone,
+          email: userDetails.email,
+        });
+        setShowConfirmation(true);
+        setLoading(false);
+      } else {
+        alert(data.message || "Payment verification failed");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Verification failed. Please contact support.");
+      setLoading(false);
+    }
+  }
+
   if (poojaLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-secondary">Loading pooja details...</p>
@@ -296,9 +288,9 @@ async function verifyPayment(response) {
 
   if (!pooja) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-xl text-secondary mb-4">Pooja not found</p>
+          <p className="text-lg sm:text-xl text-secondary mb-4">Pooja not found</p>
           <Button onClick={() => router.push("/poojas")}>
             Back to Poojas
           </Button>
@@ -307,30 +299,30 @@ async function verifyPayment(response) {
     );
   }
 
-  const discount = pooja.price - pooja.offer_price; // 🔥 Updated to match DB field names
+  const discount = pooja.price - pooja.offer_price;
 
   return (
     <>
-      <main className="min-h-screen bg-white py-8">
-        <div className="max-w-6xl mx-auto px-4">
+      <main className="min-h-screen mt-s56 sm:mt-s72 lg:mt-s80 bg-white py-5 sm:py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-4">
 
           {/* Header */}
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-secondary hover:text-main mb-6 transition"
+            className="flex items-center gap-2 text-secondary hover:text-main mb-4 sm:mb-6 transition"
           >
             <ArrowLeft size={20} />
             <span className="body-small">Back</span>
           </button>
 
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
 
             {/* LEFT — Form */}
             <div className="lg:col-span-2 space-y-4">
 
               {/* Contact Details */}
               <SectionCard title="Contact Details">
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <InputField
                     label="Full Name *"
                     value={userDetails.name}
@@ -341,7 +333,7 @@ async function verifyPayment(response) {
 
                   <div>
                     <label className="body-small text-secondary">Phone Number *</label>
-                    <div className={`mt-1 flex items-center gap-2 rounded-r8 border px-4 py-3 bg-white transition ${errors.phone ? "border-red-main" : "border-border"}`}>
+                    <div className={`mt-1 flex items-center gap-2 rounded-r8 border px-3 sm:px-4 py-2.5 sm:py-3 bg-white transition ${errors.phone ? "border-red-main" : "border-border"}`}>
                       <Phone size={16} className="text-secondary shrink-0" />
                       <span className="body-small text-secondary">+91</span>
                       <input
@@ -349,7 +341,7 @@ async function verifyPayment(response) {
                         onChange={(e) => setUserDetails({ phone: e.target.value.replace(/\D/g, "") })}
                         placeholder="10-digit number"
                         maxLength={10}
-                        className="bg-transparent outline-none flex-1 body-small"
+                        className="bg-transparent outline-none flex-1 body-small min-w-0"
                         readOnly={!!userDetails.phone && !needsPhone}
                       />
                     </div>
@@ -375,7 +367,7 @@ async function verifyPayment(response) {
               {/* Address — only for At Home */}
               {pooja.mode === "At Home" && (
                 <SectionCard title="Address Details">
-                  <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InputField
                       label="House/Flat No. *"
                       value={userDetails.houseNo}
@@ -414,10 +406,12 @@ async function verifyPayment(response) {
 
               {/* Date */}
               <SectionCard title="Select Date">
-                <DateSelector
-                  selectedDate={selectedDate}
-                  onSelectDate={setSelectedDate}
-                />
+                <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                  <DateSelector
+                    selectedDate={selectedDate}
+                    onSelectDate={setSelectedDate}
+                  />
+                </div>
                 {errors.date && (
                   <p className="text-red-main caption mt-2">{errors.date}</p>
                 )}
@@ -425,11 +419,13 @@ async function verifyPayment(response) {
 
               {/* Time */}
               <SectionCard title="Select Time Slot">
-                <TimeSlotSelector
-                  selectedSlot={selectedTimeSlot}
-                  onSelectSlot={setSelectedTimeSlot}
-                  selectedDate={selectedDate}
-                />
+                <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                  <TimeSlotSelector
+                    selectedSlot={selectedTimeSlot}
+                    onSelectSlot={setSelectedTimeSlot}
+                    selectedDate={selectedDate}
+                  />
+                </div>
                 {errors.timeSlot && (
                   <p className="text-red-main caption mt-2">{errors.timeSlot}</p>
                 )}
@@ -439,21 +435,22 @@ async function verifyPayment(response) {
 
             {/* RIGHT — Order Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-gray-100 rounded-r16 border border-border p-6 sticky top-4">
-                <h2 className="body-default font-semibold mb-5">Order Summary</h2>
+              <div className="bg-gray-100 rounded-r16 border border-border p-4 sm:p-6 lg:sticky lg:top-4">
+                <h2 className="body-default font-semibold mb-4 sm:mb-5">Order Summary</h2>
 
                 {/* Pooja */}
-                <div className="flex gap-4 mb-5">
-                  <div className="relative w-20 h-20 bg-gray-100 rounded-r8 shrink-0 border border-border">
+                <div className="flex gap-3 sm:gap-4 mb-4 sm:mb-5">
+                  <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-r8 shrink-0 border border-border">
                     <Image
                       src={pooja.image}
                       alt={pooja.title}
                       fill
                       className="object-contain p-2"
+                      sizes="80px"
                     />
                   </div>
-                  <div>
-                    <p className="body-small font-semibold">{pooja.title}</p>
+                  <div className="min-w-0">
+                    <p className="body-small font-semibold truncate">{pooja.title}</p>
                     <p className="caption text-secondary mt-1">{pooja.mode}</p>
                     <p className="caption text-secondary">{pooja.duration}</p>
                   </div>
@@ -480,7 +477,7 @@ async function verifyPayment(response) {
                 {/* Trust badge */}
                 <div className="flex items-center gap-3 bg-green-50 rounded-r8 p-3 mt-5">
                   <ShieldCheck size={20} className="text-green-600 shrink-0" />
-                  <div>
+                  <div className="min-w-0">
                     <p className="caption font-semibold text-green-900">Safe & Secure Payment</p>
                     <p className="caption text-green-700">100% Payment Protection</p>
                   </div>

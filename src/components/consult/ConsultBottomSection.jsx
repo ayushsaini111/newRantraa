@@ -69,7 +69,7 @@ function ConsultBottomSection({ pandits = [], onRequestCall, loadingId }) {
               flex
               items-end
               justify-between
-              gap-s24
+              sm:gap-s24
             "
           >
 
@@ -84,6 +84,7 @@ function ConsultBottomSection({ pandits = [], onRequestCall, loadingId }) {
             </p>
 
             <Button 
+            className="py-s16"
               variant="primary"
               onClick={() => setShowFinder(true)}
             >

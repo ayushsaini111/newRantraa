@@ -190,14 +190,14 @@ export default function LoginContent() {  // ← Changed from LoginPage
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-5">
-      <div className="w-full max-w-md bg-secondary-main rounded-r24 p-8">
+      <div className="w-full max-w-md bg-primary-light/20 rounded-r24 p-8">
         {/* Logo */}
-        <div className="mx-auto relative w-28 h-28 mb-6">
+        <div className="mx-auto relative w-38 h-28 mb-6">
           <Image
-            src="/logo.jpg"
+            src="/rr.png"
             fill
             alt="Rantraa"
-            className="rounded-full object-cover"
+            className="rounded-full object-contain"
           />
         </div>
 
@@ -215,9 +215,9 @@ export default function LoginContent() {  // ← Changed from LoginPage
         {/* STEP: PHONE */}
         {step === "phone" && (
           <>
-            <label className="body-default">Mobile Number</label>
+            <label className="body-default"></label>
 
-            <div className="mt-2 flex items-center gap-3 border rounded-r16 px-4 py-3">
+            <div className="mt-2 flex items-center gap-3 mt-s16 border rounded-r16 px-4 py-3">
               <MessageCircle size={22} className="text-green-600" />
               <span>+91</span>
               <input
@@ -244,7 +244,7 @@ export default function LoginContent() {  // ← Changed from LoginPage
 
             <div className="relative my-6">
               <div className="border-t border-gray-300" />
-              <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-secondary-main px-4 caption text-secondary">
+              <span className="absolute left-1/2 -translate-x-1/2 -top-3  px-4 caption text-secondary">
                 OR
               </span>
             </div>

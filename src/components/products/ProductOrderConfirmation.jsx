@@ -83,6 +83,22 @@ export default function ProductOrderConfirmation({ isOpen, onClose, orderDetails
               </div>
             </div>
           </div>
+          // In ProductOrderConfirmation.jsx — add this after the product price section:
+
+{orderDetails.shuddhikaranRequested && (
+  <div className="flex items-start gap-s16 pb-s16 border-b border-secondary-dark">
+    <div className="w-10 h-10 rounded-full bg-primary-main/10 flex items-center justify-center shrink-0">
+      <Sparkles size={18} className="text-primary-main" />
+    </div>
+    <div className="flex-1">
+      <p className="body-default font-semibold text-main mb-s4">Shuddhikaran (Purification)</p>
+      <p className="body-small text-secondary">
+        Your product will be energized by our Pandit Ji before delivery
+      </p>
+    </div>
+    <span className="body-default font-semibold text-primary-main">+₹{orderDetails.shuddhikaranAmount || 199}</span>
+  </div>
+)}
 
           {/* Order ID & Status */}
           <div className="bg-[#F9F4FB] rounded-r16 p-s16 space-y-s10">

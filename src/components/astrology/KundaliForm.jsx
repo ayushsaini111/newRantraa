@@ -15,11 +15,11 @@ export default function KundaliForm({
   title = "Birth Details",
   loading = false,
   initialData = null,
-  showGender = true, // New prop to control gender field visibility
+  showGender = true,
 }) {
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
-    gender: initialData?.gender || "MALE", // Default to MALE
+    gender: initialData?.gender || "MALE",
     date: initialData?.date || "",
     time: initialData?.time || "",
     place: initialData?.place || "",
@@ -48,7 +48,6 @@ export default function KundaliForm({
       newErrors.name = "Name is required";
     }
 
-    // Only validate gender if it's shown
     if (showGender && !formData.gender) {
       newErrors.gender = "Gender is required";
     }
@@ -105,9 +104,9 @@ export default function KundaliForm({
   };
 
   return (
-    <div className="overflow-hidden rounded-xl bg-white shadow-lg">
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
-        <h3 className="flex items-center text-xl font-bold text-white">
+    <div className="overflow-hidden rounded-xl bg-background shadow-lg border border-primary-main/10">
+      <div className="bg-gradient-to-r from-primary-main to-primary-light p-6">
+        <h3 className="flex items-center text-xl font-bold text-background">
           <User className="mr-2 h-5 w-5" />
           {title}
         </h3>
@@ -118,7 +117,7 @@ export default function KundaliForm({
         <div>
           <label
             htmlFor="kundali-name"
-            className="mb-2 block text-sm font-semibold text-gray-700"
+            className="mb-2 block text-sm font-semibold text-main"
           >
             <User className="mr-1 inline h-4 w-4" />
             Full Name *
@@ -131,22 +130,22 @@ export default function KundaliForm({
             onChange={(event) => updateField("name", event.target.value)}
             placeholder="Enter your full name"
             autoComplete="name"
-            className={`w-full rounded-xl border p-4 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full rounded-xl border p-4 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-light ${
               errors.name
-                ? "border-red-500 bg-red-50"
-                : "border-gray-300"
+                ? "border-red-main bg-red-main/5"
+                : "border-secondary-dark"
             }`}
           />
 
           {errors.name && (
-            <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+            <p className="mt-1 text-sm text-red-main">{errors.name}</p>
           )}
         </div>
 
         {/* Gender - Only show if showGender is true */}
         {showGender && (
           <fieldset>
-            <legend className="mb-2 block text-sm font-semibold text-gray-700">
+            <legend className="mb-2 block text-sm font-semibold text-main">
               Gender *
             </legend>
 
@@ -159,8 +158,8 @@ export default function KundaliForm({
                     key={option.value}
                     className={`cursor-pointer rounded-xl border px-3 py-3 text-center text-sm font-medium transition ${
                       selected
-                        ? "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                        ? "border-primary-light bg-primary-light/10 text-primary-main ring-1 ring-primary-light"
+                        : "border-secondary-dark bg-background text-main hover:bg-secondary-main/30"
                     }`}
                   >
                     <input
@@ -181,7 +180,7 @@ export default function KundaliForm({
             </div>
 
             {errors.gender && (
-              <p className="mt-1 text-sm text-red-500">{errors.gender}</p>
+              <p className="mt-1 text-sm text-red-main">{errors.gender}</p>
             )}
           </fieldset>
         )}
@@ -191,7 +190,7 @@ export default function KundaliForm({
           <div>
             <label
               htmlFor="kundali-date"
-              className="mb-2 block text-sm font-semibold text-gray-700"
+              className="mb-2 block text-sm font-semibold text-main"
             >
               <Calendar className="mr-1 inline h-4 w-4" />
               Birth Date *
@@ -203,22 +202,22 @@ export default function KundaliForm({
               value={formData.date}
               onChange={(event) => updateField("date", event.target.value)}
               max={new Date().toISOString().split("T")[0]}
-              className={`w-full rounded-xl border p-4 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full rounded-xl border p-4 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-light ${
                 errors.date
-                  ? "border-red-500 bg-red-50"
-                  : "border-gray-300"
+                  ? "border-red-main bg-red-main/5"
+                  : "border-secondary-dark"
               }`}
             />
 
             {errors.date && (
-              <p className="mt-1 text-sm text-red-500">{errors.date}</p>
+              <p className="mt-1 text-sm text-red-main">{errors.date}</p>
             )}
           </div>
 
           <div>
             <label
               htmlFor="kundali-time"
-              className="mb-2 block text-sm font-semibold text-gray-700"
+              className="mb-2 block text-sm font-semibold text-main"
             >
               <Clock className="mr-1 inline h-4 w-4" />
               Birth Time *
@@ -229,22 +228,22 @@ export default function KundaliForm({
               type="time"
               value={formData.time}
               onChange={(event) => updateField("time", event.target.value)}
-              className={`w-full rounded-xl border p-4 transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full rounded-xl border p-4 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-primary-light ${
                 errors.time
-                  ? "border-red-500 bg-red-50"
-                  : "border-gray-300"
+                  ? "border-red-main bg-red-main/5"
+                  : "border-secondary-dark"
               }`}
             />
 
             {errors.time && (
-              <p className="mt-1 text-sm text-red-500">{errors.time}</p>
+              <p className="mt-1 text-sm text-red-main">{errors.time}</p>
             )}
           </div>
         </div>
 
         {/* Birth place */}
         <div>
-          <label className="mb-2 block text-sm font-semibold text-gray-700">
+          <label className="mb-2 block text-sm font-semibold text-main">
             <MapPin className="mr-1 inline h-4 w-4" />
             Birth Place *
           </label>
@@ -256,14 +255,14 @@ export default function KundaliForm({
           />
 
           {errors.place && (
-            <p className="mt-1 text-sm text-red-500">{errors.place}</p>
+            <p className="mt-1 text-sm text-red-main">{errors.place}</p>
           )}
         </div>
 
         {/* Coordinates */}
         {formData.lat !== "" && formData.lng !== "" && (
-          <div className="rounded-lg border border-green-200 bg-green-50 p-3">
-            <p className="text-sm text-green-700">
+          <div className="rounded-lg border border-primary-light/30 bg-primary-light/5 p-3">
+            <p className="text-sm text-primary-main">
               📍 Coordinates: {Number(formData.lat).toFixed(4)},{" "}
               {Number(formData.lng).toFixed(4)}
             </p>
@@ -273,11 +272,11 @@ export default function KundaliForm({
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 px-6 py-4 font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:from-blue-600 hover:to-purple-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+          className="w-full rounded-xl bg-gradient-to-r from-primary-main to-primary-light px-6 py-4 font-semibold text-background transition-all duration-200 hover:scale-[1.02] hover:from-primary-light hover:to-primary-main disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
         >
           {loading ? (
             <span className="flex items-center justify-center">
-              <span className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-background border-t-transparent" />
               Generating Kundali...
             </span>
           ) : (

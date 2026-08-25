@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-import ProductsHeader from "@/components/ProductsHeader";
+import ProductsHeader from "@/components/products/ProductsHeaderClient";
 import HeroSection    from "@/components/products/HeroSection";
 import ProductsSection from "@/components/products/ProductsSection";
 

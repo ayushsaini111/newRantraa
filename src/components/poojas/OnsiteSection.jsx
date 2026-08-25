@@ -58,7 +58,7 @@ export default function OnsiteSection({ data }) {
                   items-center
                   justify-center
                   rounded-full
-                  bg-secondary-main
+                  bg-primary-main
                 "
               >
                 <ShieldCheck
@@ -88,7 +88,7 @@ export default function OnsiteSection({ data }) {
           ref={sliderRef}
           className="
             flex
-            gap-s32
+            gap-s24
             overflow-x-auto
             scroll-smooth
             hide-scrollbar

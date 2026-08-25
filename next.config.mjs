@@ -24,7 +24,7 @@ const nextConfig = {
     return [
       {
         source: "/backend/:path*",
-        destination: "https://astro-nine-beige.vercel.app/api/:path*",
+        destination: "http://localhost:3001/api/:path*",
       },
     ];
   },

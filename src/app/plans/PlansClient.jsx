@@ -174,7 +174,7 @@ export default function PlansClient({ plans, status, userId }) {
   }
 
   return (
-    <div className="min-h-screen bg-background px-s16 py-s104 max-w-4xl mx-auto">
+    <div className="min-h-screen mt-s24 bg-background px-s16 py-s104 max-w-5xl mx-auto">
       
       {/* Header */}
       <div className="mb-s40">

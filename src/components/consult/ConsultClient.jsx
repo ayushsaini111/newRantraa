@@ -176,17 +176,21 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
   }
 
   return (
-    <main className="min-h-screen bg-background pt-s56">
+    <main className="min-h-screen bg-background pt-s48 sm:pt-s56">
       <PageHeader title="Consult" subtitle="Talk to verified spiritual experts" />
 
-      <div className="max-w-7xl mx-auto px-s16 py-s40 lg:px-s32">
-          <div className="flex items-center justify-between max-w-3xl mb-s24">
-            <h2 className="heading-h5 text-main">Recommended Experts</h2>
-            <button onClick={() => router.push("/pandits")} className="caption text-primary-light hover:opacity-80 transition-all">
-              View All
-            </button>
-          </div>
-        <div className="grid lg:grid-cols-[1fr_420px] gap-s40">
+      <div className="max-w-7xl mx-auto px-s16 py-s24 sm:px-s24 sm:py-s32 md:px-s32 lg:py-s40">
+        <div className="flex flex-wrap items-center justify-between gap-s8 max-w-3xl mb-s16 sm:mb-s24">
+          <h2 className="heading-h6 sm:heading-h5 text-main">Recommended Experts</h2>
+          <button
+            onClick={() => router.push("/pandits")}
+            className="caption text-primary-light hover:opacity-80 transition-all"
+          >
+            View All
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-s24 sm:gap-s32 lg:gap-s40">
           {/* Left: Experts */}
           <CallExpertsSection
             pandits={pandits}
@@ -209,17 +213,17 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
 
       {/* Waiting banner */}
       {Object.keys(requestedCalls).length > 0 && !incomingCall && (
-        <div className="fixed bottom-0 left-0 right-0 bg-primary-main text-white px-s24 py-s16 flex items-center gap-s16 z-50 shadow-lg">
-          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+        <div className="fixed bottom-0 left-0 right-0 bg-primary-main text-white px-s16 py-s16 sm:px-s24 sm:py-s16 flex items-center gap-s16 sm:gap-s16 z-50 shadow-lg">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full bg-white/20 flex items-center justify-center">
             🙏
           </div>
-          <div className="flex-1">
-            <p className="body-small font-semibold">Waiting for expert...</p>
-            <p className="caption opacity-80">You'll get a call shortly</p>
+          <div className="flex-1 min-w-0">
+            <p className="body-small font-semibold truncate">Waiting for expert...</p>
+            <p className="caption opacity-80 truncate">You'll get a call shortly</p>
           </div>
           <button
             onClick={() => setRequestedCalls({})}
-            className="caption underline opacity-80 hover:opacity-100"
+            className="caption underline opacity-80 hover:opacity-100 shrink-0"
           >
             Cancel
           </button>
@@ -228,20 +232,20 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
 
       {/* Incoming call overlay */}
       {incomingCall && (
-        <div className="fixed inset-0 z-50 bg-gradient-to-b from-zinc-900 to-black flex flex-col items-center justify-between px-s24 py-s64">
-          <div className="text-center">
-            <p className="caption text-zinc-400 uppercase tracking-widest mb-s24">
+        <div className="fixed inset-0 z-50 bg-gradient-to-b from-zinc-900 to-black flex flex-col items-center justify-between px-s16 py-s32 sm:px-s24 sm:py-s48 md:py-s64">
+          <div className="text-center mt-s16 sm:mt-0">
+            <p className="caption text-zinc-400 uppercase tracking-widest mb-s16 sm:mb-s24">
               Incoming Call
             </p>
 
-            <div className="relative w-32 h-32 mx-auto mb-s32">
+            <div className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-s24 sm:mb-s32">
               <div className="absolute inset-0 rounded-full bg-emerald-400 opacity-20 animate-ping" />
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center text-white font-bold text-4xl shadow-2xl">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-emerald-600 to-emerald-800 flex items-center justify-center text-white font-bold text-2xl sm:text-4xl shadow-2xl">
                 {incomingCall.pandit?.name?.slice(0, 2).toUpperCase() ?? "PA"}
               </div>
             </div>
 
-            <h2 className="heading-h3 text-white mb-s8">
+            <h2 className="heading-h4 sm:heading-h3 text-white mb-s8 px-s16">
               {incomingCall.pandit?.name ?? "Pandit"}
             </h2>
             <p className="body-small text-zinc-400">
@@ -249,15 +253,15 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
             </p>
           </div>
 
-          <div className="flex gap-s80 items-center">
+          <div className="flex gap-s40 sm:gap-s64 md:gap-s80 items-center mb-s16 sm:mb-0">
             {/* Decline */}
             <div className="flex flex-col items-center gap-s8">
               <button
                 onClick={handleReject}
-                className="w-20 h-20 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center shadow-xl active:scale-95 transition-all"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center shadow-xl active:scale-95 transition-all"
               >
                 <svg
-                  className="w-9 h-9 text-white"
+                  className="w-7 h-7 sm:w-9 sm:h-9 text-white"
                   style={{ transform: "rotate(135deg)" }}
                   fill="currentColor"
                   viewBox="0 0 24 24"
@@ -273,17 +277,17 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
               <button
                 onClick={handleAccept}
                 disabled={accepting}
-                className="w-20 h-20 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center shadow-xl disabled:opacity-60 active:scale-95 transition-all"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center shadow-xl disabled:opacity-60 active:scale-95 transition-all"
               >
                 <svg
-                  className="w-9 h-9 text-white"
+                  className="w-7 h-7 sm:w-9 sm:h-9 text-white"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
                   <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" />
                 </svg>
               </button>
-              <p className="caption text-zinc-400">
+              <p className="caption text-zinc-400 whitespace-nowrap">
                 {accepting ? "Connecting..." : "Accept"}
               </p>
             </div>

@@ -8,6 +8,8 @@ import { useSession } from "next-auth/react";
 import { useSSE } from "@/hooks/useSSE";
 import { useCallPolling } from "@/hooks/useCallPolling";
 import CallExpertsSection from "@/components/consult/CallExpertsSection";
+import Link from "next/link";
+
 
 
 const AgoraCall = dynamic(() => import("@/components/call/AgoraCall"), { ssr: false });
@@ -176,7 +178,7 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
 
 
    return (
-  <main className="min-h-screen bg-background pt-s56">
+  <main className=" bg-background pt-s56">
     <div className="mx-auto max-w-7xl px-s16 py-s40 sm:px-s24 lg:px-s32">
 
       {/* Header */}
@@ -186,25 +188,22 @@ export default function ConsultClient({ pandits, userId: propUserId }) {
           <br />
           Pandits
         </h1>
-
-        <button
-          type="button"
-          onClick={() => {
-            // Keep this for your future full-pandit page.
-            // Currently already on /consult.
-          }}
-          className="
-            shrink-0
-            pt-s8
-            body-default
-            font-medium
-            text-main
-            transition-opacity
-            hover:opacity-60
-          "
-        >
-          View All Pandits
-        </button>
+ <Link
+            href="/pandits"
+            className="
+              hidden
+              shrink-0
+              pt-s8
+              body-small
+              font-medium
+              text-primary-main
+              
+              hover:text-primary-main/50
+              sm:block
+            "
+          >
+            View All Pandits
+          </Link>
       </div>
 
       {/* Maximum 6 Pandits */}

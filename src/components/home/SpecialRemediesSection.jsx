@@ -7,44 +7,44 @@ const REMEDIES = [
   {
     title: "Shiv ji Pooja",
     filter: "shiv-ji-pooja",
-    image: "/poojas/remedies/shiv-ji.png",
-    badge: "Seven Special",
+    image: "/poojas/remedies/shiv.webp",
+    badge: "Savan Special",
   },
   {
     title: "Wealth & Prosperity",
     filter: "wealth-prosperity",
-    image: "/poojas/remedies/lakshmi.png",
+    image: "/poojas/remedies/wealth.jpg",
   },
   {
     title: "Home & Family",
     filter: "home-family",
-    image: "/poojas/remedies/home-family.png",
+    image: "/poojas/remedies/family.jpg",
     badge: "Trending",
   },
   {
     title: "Planetary Remedies",
     filter: "planetary-remedies",
-    image: "/poojas/remedies/planetary.png",
+    image: "/poojas/remedies/plantry.jpg",
   },
   {
     title: "Career & Business",
     filter: "career-business",
-    image: "/poojas/remedies/career.png",
+    image: "/poojas/remedies/business.jpg",
   },
   {
     title: "Love & Marriage",
     filter: "love-marriage",
-    image: "/poojas/remedies/marriage.png",
+    image: "/poojas/remedies/love.avif",
   },
   {
     title: "Health & Protection",
     filter: "health-protection",
-    image: "/poojas/remedies/health.png",
+    image: "/poojas/remedies/health.jpg",
   },
   {
     title: "Vastu Shanti",
     filter: "vastu-shanti",
-    image: "/poojas/remedies/vastu.png",
+    image: "/poojas/remedies/vastu.jpg",
     badge: "Home position",
   },
 ];
@@ -61,7 +61,7 @@ export default function SpecialRemediesSection() {
               Special Remedies
             </h2>
 
-            <p className="body-small mt-s8 text-secondary">
+            <p className="heading-h6 mt-s16 md:mt-s32 text-secondary">
               Book online ePoojas performed by experienced pandits on your
               behalf. Receive the sacred blessings and spiritual benefits
               from your home.
@@ -71,14 +71,14 @@ export default function SpecialRemediesSection() {
           <Link
             href="/poojas/all?mode=Online"
             className="
-              hidden
+             hidden
               shrink-0
               pt-s8
               body-small
               font-medium
-              text-main
-              transition-opacity
-              hover:opacity-60
+              text-primary-main
+              
+              hover:text-primary-main/50
               sm:block
             "
           >
@@ -112,7 +112,7 @@ export default function SpecialRemediesSection() {
                   220px
                 "
                 className="
-                  object-cover
+                  object-cover 
                   transition-transform
                   duration-500
                   group-hover:scale-105

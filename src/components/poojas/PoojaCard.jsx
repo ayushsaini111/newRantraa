@@ -44,7 +44,7 @@ export default function PoojaCard({ data }) {
       {/* Title */}
       <h3
         className="
-          mt-s24
+          mt-s16 sm:mt-s24
           text-[22px]
           font-semibold
           text-main

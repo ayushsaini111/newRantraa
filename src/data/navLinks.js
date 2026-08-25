@@ -17,7 +17,7 @@ export const DESKTOP_NAV = [
     href: "/poojas",
   },
   {
-    title: "consutation",
+    title: "consultation",
     href: "/consult",
   },
   {
@@ -42,7 +42,12 @@ export const MOBILE_NAV = [
     icon: Sparkles,
   },
   {
-    title: "Orders",
+    title: "Consultation",
+    href: "/consult",
+    icon: Sparkles,
+  },
+  {
+    title: "Astrology",
     href: "/orders",
     icon: Package,
     protected: true,

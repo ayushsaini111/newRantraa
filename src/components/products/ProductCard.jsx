@@ -120,7 +120,7 @@ function ProductCard({ product }) {
         {/* PRICE + BUY */}
         <div className="flex items-center justify-between">
 
-          <div className="flex items-center gap-s8">
+          <div className="flex flex-col-reverse  ">
             <span className="text-sm font-semibold text-main">
               ₹{product.price || 0}
             </span>
