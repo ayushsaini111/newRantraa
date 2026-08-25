@@ -19,7 +19,7 @@ export default function ProductOrderConfirmation({ isOpen, onClose, orderDetails
   const handleViewOrders = () => {
     onClose();
     // TODO: Navigate to orders page
-    router.push("/profile/orders");
+    router.push("/orders");
   };
 
   const handleTrackOrder = () => {

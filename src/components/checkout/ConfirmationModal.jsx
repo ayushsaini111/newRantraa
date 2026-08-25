@@ -17,7 +17,7 @@ export default function ConfirmationModal({ isOpen, onClose, bookingDetails }) {
   const handleViewBookings = () => {
     onClose();
     // ✅ Change to your actual orders/bookings route
-    router.push("/profile/orders"); // or "/orders" or "/bookings"
+    router.push("/orders"); // or "/orders" or "/bookings"
   };
 
   return (
