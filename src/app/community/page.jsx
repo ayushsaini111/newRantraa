@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth"; // adjust to your actual authOptions p
 import { redirect } from "next/navigation";
 import CommunityClient from "./CommunityClient";
 
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3001";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
 
 export default async function CommunityPage() {
   const session = await getServerSession(authOptions);

@@ -19,7 +19,7 @@ export default function OnsiteSection({ data }) {
   };
 
   return (
-    <section className="w-full overflow-hidden">
+    <section className="w-full py-s80 overflow-hidden">
       {/* TOP CONTENT */}
       <div className="mx-auto max-w-7xl px-s16 sm:px-s24 lg:px-s16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-s32 sm:gap-s40 lg:gap-s64">

@@ -339,7 +339,7 @@ const HoroscopeMini = () => {
             }`}
           >
             <div className="text-xl md:text-2xl mb-1">{rashi.emoji}</div>
-            <div className={`text-[10px] font-medium ${
+            <div className={`text-[9px] font-medium ${
               selectedRashi?.key === rashi.key ? "text-background" : "text-main"
             }`}>
               {rashi.name.toUpperCase()}
