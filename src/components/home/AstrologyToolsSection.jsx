@@ -96,9 +96,9 @@ const KundaliFormCompact = ({ onSubmit, loading }) => {
     Kundali Generator
   </div>
 
-  <form onSubmit={handleSubmit} className="flex flex-col justify-between space-y-s56 p-4 mt-s24 overflow-auto">
+  <form onSubmit={handleSubmit} className="flex flex-col justify-between space-y-s24 p-4 mt-s24 overflow-auto">
     {/* Name */}
-   <div className="space-y-s16">
+   <div className="space-y-s16 sm:space-y-s24">
      <div>
       <label className="mb-2 block text-xs font-semibold text-main">
         <User className="mr-1 inline h-3 w-3" />

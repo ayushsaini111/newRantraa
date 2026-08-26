@@ -20,14 +20,14 @@ const nextConfig = {
     ],
   },
 
- async rewrites() {
-  return [
-    {
-      source: "/backend/:path*",
-      destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/:path*`,
-    },
-  ];
-},
+  async rewrites() {
+    return [
+      {
+        source: "/backend/:path*",
+        destination: "https://astro-nine-beige.vercel.app/api/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

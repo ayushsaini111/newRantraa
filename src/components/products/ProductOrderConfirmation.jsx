@@ -8,6 +8,7 @@ import { CheckCircle2, Package, MapPin, Clock } from "lucide-react";
 
 export default function ProductOrderConfirmation({ isOpen, onClose, orderDetails }) {
   const router = useRouter();
+  console.log("oo",orderDetails)
 
   if (!isOpen || !orderDetails) return null;
 
@@ -83,7 +84,7 @@ export default function ProductOrderConfirmation({ isOpen, onClose, orderDetails
               </div>
             </div>
           </div>
-          // In ProductOrderConfirmation.jsx — add this after the product price section:
+        
 
 {orderDetails.shuddhikaranRequested && (
   <div className="flex items-start gap-s16 pb-s16 border-b border-secondary-dark">

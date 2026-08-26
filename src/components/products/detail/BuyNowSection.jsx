@@ -10,6 +10,7 @@ export default function BuyNowSection({ product }) {
   const [showModal, setShowModal] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
+  console.log("o",orderDetails)
 
   const handleSuccess = (details) => {
     const orderId = `ORD${Date.now().toString().slice(-8)}`;

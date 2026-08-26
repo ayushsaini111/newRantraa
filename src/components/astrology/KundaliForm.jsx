@@ -104,8 +104,8 @@ export default function KundaliForm({
   };
 
   return (
-    <div className="overflow-hidden rounded-xl bg-background shadow-lg border border-primary-main/10">
-      <div className="bg-gradient-to-r from-primary-main to-primary-light p-6">
+    <div className="rounded-xl bg-background shadow-lg border border-primary-main/10">
+      <div className="rounded-t-xl overflow-hidden bg-gradient-to-r from-primary-main to-primary-light p-6">
         <h3 className="flex items-center text-xl font-bold text-background">
           <User className="mr-2 h-5 w-5" />
           {title}
@@ -242,7 +242,7 @@ export default function KundaliForm({
         </div>
 
         {/* Birth place */}
-        <div>
+        <div className="relative">
           <label className="mb-2 block text-sm font-semibold text-main">
             <MapPin className="mr-1 inline h-4 w-4" />
             Birth Place *
